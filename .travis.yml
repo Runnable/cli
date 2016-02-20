@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+- '0.10'
+- '4.2'
+sudo: false
+cache:
+  directories:
+  - ./node_modules
+env:
+  global:
+  - _STEP_DELAY_MS=1500
+before_install:
+- if [[ "$(npm --version)" =~ ^1\..+ ]]; then npm install -g npm@2; fi
+script:
+- npm run lint
+- npm run coverage
+- npm run feature
+notifications:
+  email: false
