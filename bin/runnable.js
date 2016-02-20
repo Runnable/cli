@@ -4,7 +4,7 @@
 require('colors')
 require('console.table')
 var FileCookieStore = require('tough-cookie-filestore')
-var Runnable = require('@runnable/cli')
+var Runnable = require('@runnable/api-client')
 var debug = require('debug')('runnable-cli')
 var fs = require('fs')
 var path = require('path')
