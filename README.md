@@ -1,5 +1,7 @@
 # Runnable CLI
 
+[![Build Status](https://travis-ci.org/Runnable/cli.svg?branch=master)](https://travis-ci.org/Runnable/cli)
+
 A CLI Tool for [Runnable.io](http://runnable.io)
 
 ## Requirements
