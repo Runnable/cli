@@ -1,4 +1,4 @@
-Feature: Login to Runnable
+Feature: Login into Runnable
   Background:
     Given I am part of the "Runnable" organization
     And I am part of the "Runnabear" organization
@@ -24,6 +24,7 @@ Feature: Login to Runnable
       """
     And the exit status should be 0
     And I should be using the "Runnabear" organization
+    And there should be a token generated for "bkendall"
 
   Scenario: Login to Runnable using two-factor authentication
     Given I require a two-factor code "123456"
@@ -41,3 +42,4 @@ Feature: Login to Runnable
     And the output should contain "Choose a GitHub organization"
     And the exit status should be 0
     And I should be using the "Runnable" organization
+    And there should be a token generated for "bkendall"

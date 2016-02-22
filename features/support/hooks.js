@@ -3,20 +3,30 @@
 var Primus = require('primus')
 var Promise = require('bluebird')
 var basicAuth = require('basic-auth')
-var debug = require('debug')('features:hooks')
+var debug = require('debug')('runnable-cli:features:hooks')
 var dockerFrame = require('docker-frame')
 var express = require('express')
 var find = require('101/find')
+var fs = Promise.promisifyAll(require('fs'))
 var hasProps = require('101/has-properties')
 var http = require('http')
-var fs = Promise.promisifyAll(require('fs'))
-var uuid = require('uuid')
+var path = require('path')
 var substream = require('substream')
+var uuid = require('uuid')
 
 module.exports = function () {
   this.Before(function () {
+    // environment stuff
+    this.environment = {
+      RUNNABLE_HOST: 'http://localhost:8080',
+      RUNNABLE_GITHUB_URL: 'http://localhost:8080'
+    }
+
     // file system stuff
     this._fs = {}
+    this._fs.baseDir = '/tmp/' + uuid()
+    this._fs.cwd = this._fs.baseDir
+    this.environment.RUNNABLE_STORE = path.resolve(this._fs.baseDir, '.runnable')
 
     // application server mock
     this.app = makeExpressApp(this)
@@ -37,8 +47,6 @@ module.exports = function () {
     }.bind(this))
       .bind(this)
       .then(function () {
-        this._fs.baseDir = '/tmp/' + uuid()
-        this._fs.cwd = this._fs.baseDir
         return fs.mkdirAsync(this._fs.baseDir)
       })
   })
@@ -173,9 +181,14 @@ function makeExpressApp (ctx) {
     function (req, res, next) {
       debug('here is an authorizations request')
       var user = basicAuth(req)
+      debug('authorization is as follows', user.name, user.pass)
+      if (!user) {
+        return res.status(403).end()
+      }
       if (user.name !== 'bkendall' || user.pass !== 'foobar') {
         return res.status(401).end()
       }
+      req._user = user.name
       next()
     },
     function (req, res, next) {
@@ -195,8 +208,8 @@ function makeExpressApp (ctx) {
     },
     function (req, res) {
       debug('request succeeded')
-      res.status(201)
-      res.json({
+      ctx.lastGeneratedToken = {}
+      ctx.lastGeneratedToken[req._user] = {
         id: 1000000,
         url: 'https://api.github.com/authorizations/1000000',
         app: {
@@ -213,7 +226,9 @@ function makeExpressApp (ctx) {
         updated_at: '2016-02-18T02:31:37Z',
         scopes: req.body.scopes,
         fingerprint: null
-      })
+      }
+      res.status(201)
+      res.json(ctx.lastGeneratedToken[req._user])
     }
   )
 
