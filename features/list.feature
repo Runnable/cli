@@ -10,9 +10,9 @@ Feature: Listing Containers
       | web | Runnable/web | master | Running | cabb |
     When I successfully run `runnable list api`
     Then the output should match "Container\s+Status\s+Container URL"
-    And the output should match "api/master\s+Running\s+beef-api-staging-.+"
-    And the output should match "api/fb-1\s+Stopped\s+dead-api-staging-.+"
-    And the output should not match "web/master\s+Running\s+cabb-api-staging-.+"
+    And the output should match "api/master\s+Running\s+beef-api-staging-runnable"
+    And the output should match "api/fb-1\s+Stopped\s+dead-api-staging-runnable"
+    And the output should not match "web/master\s+Running\s+cabb-api-staging-runnable"
 
   Scenario: Listing a summary of all containers
     Given the containers:
