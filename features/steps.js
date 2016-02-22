@@ -13,17 +13,13 @@ var path = require('path')
 var spawn = require('child_process').spawn
 
 var executablePath = path.join(__dirname, '..', 'bin', 'runnable.js')
-var environment = {
-  RUNNABLE_HOST: 'http://localhost:8080',
-  RUNNABLE_GITHUB_URL: 'http://localhost:8080'
-}
 
 module.exports = function () {
   this.Given(/^I am using the "([^"]*)" organization$/, function (org) {
-    environment.RUNNABLE_STORE = path.resolve(this._fs.baseDir, '.runnable')
-    var settingsFile = path.resolve(environment.RUNNABLE_STORE, 'settings.json')
+    var settingsFile = path.resolve(this.environment.RUNNABLE_STORE, 'settings.json')
     return createDirectory(this, '.runnable')
       .bind(this)
+      .delay(100)
       .then(function () {
         return fs.writeFileAsync(
           settingsFile,
@@ -44,10 +40,7 @@ module.exports = function () {
   })
 
   function expectOrganization (ctx, expectedOrganization) {
-    if (!environment.RUNNABLE_STORE) {
-      environment.RUNNABLE_STORE = path.resolve(ctx._fs.baseDir, '.runnable')
-    }
-    var settingsFile = path.resolve(environment.RUNNABLE_STORE, 'settings.json')
+    var settingsFile = path.resolve(ctx.environment.RUNNABLE_STORE, 'settings.json')
     return fs.readFileAsync(settingsFile)
       .then(function (data) {
         var settings = JSON.parse(data)
@@ -57,6 +50,12 @@ module.exports = function () {
         }
       })
   }
+
+  this.Then(/^there should be a token generated for "([^"]*)"$/, function (username) {
+    if (!this.lastGeneratedToken[username]) {
+      throw new Error('Expected token to be generated for ' + username + '. Did not find one.')
+    }
+  })
 
   this.Given(/^I should be using the "([^"]*)" organization$/, function (expectedOrg) {
     expectOrganization(this, expectedOrg)
@@ -159,7 +158,7 @@ module.exports = function () {
     var args = command.split(/\s+/)
     command = args.shift()
     if (command === 'runnable') { command = executablePath }
-    var env = assign({}, process.env, environment)
+    var env = assign({}, process.env, this.environment)
     this.childProcess = spawn(command, args, { env: env, cwd: this._fs.cwd })
     this.childProcess.stdout.on('data', Array.prototype.push.bind(stdoutArr))
     this.childProcess.stderr.on('data', Array.prototype.push.bind(stderrArr))
