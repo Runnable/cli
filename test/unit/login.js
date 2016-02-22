@@ -1,8 +1,9 @@
 'use strict'
 
 var chai = require('chai')
-var sinon = require('sinon')
+var os = require('os')
 var request = require('request')
+var sinon = require('sinon')
 
 require('sinon-as-promised')(require('bluebird'))
 chai.use(require('chai-as-promised'))
@@ -262,7 +263,7 @@ describe('Login', function () {
               },
               json: {
                 scopes: [ 'repo', 'user:email' ],
-                note: 'Runnable CLI'
+                note: 'Runnable CLI for ' + os.hostname()
               }
             },
             sinon.match.func

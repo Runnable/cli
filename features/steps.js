@@ -191,20 +191,20 @@ module.exports = function () {
     var flushed = this.childProcess.stdin.write(input + '\r\n')
     debug('stdin flushed?', flushed)
     if (flushed) {
-      return Promise.resolve().delay(process.env._STEP_DELAY_MS || 500)
+      return Promise.resolve().delay(process.env._STEP_DELAY_MS || 1000)
     } else {
       return new Promise(function (resolve) {
         this.childProcess.stdin.on('drain', resolve)
-      }.bind(this)).delay(process.env._STEP_DELAY_MS || 500)
+      }.bind(this)).delay(process.env._STEP_DELAY_MS || 1000)
     }
   })
 
   function runCommand (ctx, command) {
-    var env = assign({}, process.env, environment)
+    var env = assign({}, process.env, ctx.environment)
     var args = command.split(/\s+/)
     command = args.shift()
-    // console.log('running:', command, args)
-    // console.log('in cwd:', ctx._fs.cwd)
+    debug('running:', command, args)
+    debug('in cwd:', ctx._fs.cwd)
     return execFile(command, args, { env: env, cwd: ctx._fs.cwd })
   }
 
