@@ -2,16 +2,19 @@
 
 [![Build Status](https://travis-ci.org/Runnable/cli.svg?branch=master)](https://travis-ci.org/Runnable/cli)
 
-A CLI Tool for [Runnable.io](http://runnable.io)
+A CLI for Runnable
 
 ## Requirements
 
-You need NodeJS installed to run this CLI. `v0.10.x` is supported (but probably not for long), as well as `v4.2.x`.
+To use the CLI, you need:
+
+1) NodeJS v4.2.x or above (v0.10.x is supported but will be deprecated soon)
+2) npm >= v2.7
 
 ## Installation
 
-To install this tool, run `npm install -g @runnable/cli`.
+To install the CLI run `npm install -g @runnable/cli`.
 
 ## Logging In
 
-To authorize yourself with the CLI, use the `runnable login` command
+To authorize yourself with the CLI, use the `runnable login` command. You will be asked to choose a Github organization to s
