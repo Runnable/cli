@@ -13,7 +13,7 @@ To use the CLI, you need:
 
 ## Installation
 
-To install the CLI run `npm install -g @runnable/cli`.
+To install the CLI, run `npm install -g @runnable/cli`.
 
 ## Commands
 
