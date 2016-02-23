@@ -8,9 +8,8 @@ A CLI for Runnable
 
 To use the CLI, you need:
 
-1) NodeJS v4.2.x or above (v0.10.x is supported but will be deprecated soon)
-
-2) npm v2.7 or above
+* nodejs v4.2.x or above (v0.10.x is supported but will be deprecated soon)
+* npm v2.7 or above
 
 ## Installation
 
