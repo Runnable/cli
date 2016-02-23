@@ -16,6 +16,15 @@ To use the CLI, you need:
 
 To install the CLI run `npm install -g @runnable/cli`.
 
-## Logging In
+## Commands
+
+### runnable login
 
 To authorize yourself with the CLI, use the `runnable login` command. You will be asked to choose a Github organization to s
+
+
+### runnable org
+### runnable ssh
+### runnable logs
+### runnable list
+### runnable upload
