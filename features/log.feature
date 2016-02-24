@@ -12,7 +12,7 @@ Feature: Viewing Logs
       This is some sample log data.
       """
     When I run `runnable log foo/bar` interactively
-    And I wait 1 second
+    And I wait 2 seconds
     And I send Ctrl+C
     Then the output should contain:
       """
@@ -31,7 +31,7 @@ Feature: Viewing Logs
       This is sample socket data.
       """
     When I run `runnable log` interactively
-    And I wait 1 second
+    And I wait 2 seconds
     And I send Ctrl+C
     Then the output should contain:
       """
@@ -45,6 +45,7 @@ Feature: Viewing Logs
       Building your container.
       """
     When I run `runnable log --build`
+    And I wait 2 seconds
     Then the output should contain:
       """
       Building your container.
