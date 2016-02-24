@@ -39,7 +39,7 @@ If you don't provide a name, the cli will automatically map the command you are 
 
 You can choose to view the build logs by adding the "-b" argument to the command. Conversely, you can view the CMD logs by adding the "-c" argument to the command. If you don't specify the aforementioned commands, the command will just follow the real time logs of the Container.
 
-### runnable list <repo>(optional)
+### runnable list <repo-name>(optional)
 
 Use this command to get an overview of all the different containers you have under the active Github organization.
 
