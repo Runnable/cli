@@ -6,6 +6,15 @@ Feature: Viewing Logs
       | bar-foo | Runnable/foo | bar | Running | beef |
     And I am using the "Runnable" organization
 
+  Scenario: Trying to use the "logs" alias of "log"
+    When I run `runnable logs --help`
+    And I wait 2 seconds
+    Then the output should contain:
+      """
+      Usage: runnable-logs [options] [repository]
+      """
+    And the exit status should be 0
+
   Scenario: Getting the logs of a running container specifiying the repo and branch
     Given the container named "bar-foo" has run logs:
       """

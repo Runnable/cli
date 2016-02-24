@@ -11,6 +11,7 @@ program
   .usage('[options] <command>')
   .command('list [repository]', 'Lists all repositories and services. Specify a repository to list its containers.')
   .command('log [repository]', 'View the logs of the container for your local branch.')
+  .command('logs [repository]', 'Alias of `log [repository]`', { noHelp: true })
   .command('login', 'Authenticate with Runnable CLI.')
   .command('org', 'Choose a GitHub organization to use with Runnable.')
   .command('ssh', 'Starts a terminal session on the container for your local branch.')
