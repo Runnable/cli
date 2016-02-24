@@ -61,13 +61,16 @@ module.exports = function () {
     expectOrganization(this, expectedOrg)
   })
 
-  this.Given(/^the containers:$/, function (table) {
-    this.containers = table.hashes()
-    this.containers.forEach(function (c) {
-      var r = c.repo.split('/')
-      c.org = r[0]
-      c.repo = r[1]
-    })
+  this.Given(/^the( non-repository)? containers:$/, function (nonRepo, table) {
+    if (!this.containers) { this.containers = [] }
+    table.hashes().forEach(function (c) {
+      if (!nonRepo) {
+        var r = c.repo.split('/')
+        c.org = r[0]
+        c.repo = r[1]
+      }
+      this.containers.push(c)
+    }.bind(this))
   })
 
   function createDirectory (ctx, dir) {

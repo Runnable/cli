@@ -10,16 +10,21 @@ var find = require('101/find')
 var fs = Promise.promisifyAll(require('fs'))
 var hasProps = require('101/has-properties')
 var http = require('http')
+var keypather = require('keypather')()
 var path = require('path')
+var pluck = require('101/pluck')
 var substream = require('substream')
 var uuid = require('uuid')
 
 module.exports = function () {
   this.Before(function () {
+    var self = this
+
     // environment stuff
     this.environment = {
       RUNNABLE_HOST: 'http://localhost:8080',
-      RUNNABLE_GITHUB_URL: 'http://localhost:8080'
+      RUNNABLE_GITHUB_URL: 'http://localhost:8080',
+      DEBUG: '' // prevent debug logs from child process
     }
 
     // file system stuff
@@ -39,25 +44,26 @@ module.exports = function () {
     var primus = new Primus(this._server, primusOpts)
     primus.use('substream', substream)
     primus.on('connection', function (client) {
-      handlePrimusConnection(this, client)
-    }.bind(this))
+      handlePrimusConnection(self, client)
+    })
 
     return Promise.fromCallback(function (callback) {
-      this._server.listen(8080, callback)
-    }.bind(this))
-      .bind(this)
+      self._server.listen(8080, callback)
+    })
       .then(function () {
-        return fs.mkdirAsync(this._fs.baseDir)
+        return fs.mkdirAsync(self._fs.baseDir)
       })
   })
 
   this.After(function () {
-    return Promise.resolve().bind(this)
+    var self = this
+
+    return Promise.resolve()
       .then(function () {
-        if (this._server) {
+        if (self._server) {
           return Promise.fromCallback(function (callback) {
-            this._server.close(callback)
-          }.bind(this))
+            self._server.close(callback)
+          })
         }
       })
   })
@@ -165,6 +171,20 @@ function makeExpressApp (ctx) {
         }
       }
     })
+    var repo = keypather.get(req.query, '["contextVersion.appCodeVersions.repo"].toLowerCase()')
+    debug('check this repo out: ' + repo)
+    if (repo) {
+      instances = instances.filter(function (i) {
+        return keypather.get(i, 'contextVersion.appCodeVersions[0].lowerRepo') === repo
+      })
+    }
+    var name = keypather.get(req.query, 'name.toLowerCase()')
+    if (name) {
+      instances = instances.filter(function (i) {
+        return i.lowerName === name
+      })
+    }
+    debug('returning named instances: ' + instances.map(pluck('lowerName')).join(', '))
     res.json(instances)
   })
 
