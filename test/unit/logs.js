@@ -249,6 +249,15 @@ describe('Logs Methods', function () {
           })
       })
 
+      it('should write docker logs', function () {
+        return assert.isFulfilled(Logs._connectToContainerBuildLogs(mockArgs, mockInstance))
+          .then(function () {
+            mockSubstream.emit('data', { type: 'docker', content: 'Step' })
+            sinon.assert.calledOnce(process.stdout.write)
+            sinon.assert.calledWithExactly(process.stdout.write, 'Step')
+          })
+      })
+
       it('should not write basic logs that are not logs', function () {
         return assert.isFulfilled(Logs._connectToContainerBuildLogs(mockArgs, mockInstance))
           .then(function () {
