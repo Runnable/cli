@@ -27,13 +27,13 @@ Use this command to change the active Github organization in your session.
 
 ### runnable ssh [name]
 
-Use this command to spawn a shell session into the container. You can specify the name of the container you are trying to reach in the following format: <reponame>/<branchname>.
+Use this command to spawn a shell session into the container. You can specify the name of the container you are trying to reach in the following format: < reponame >/< branchname >.
 
-If you don't provide a name, the cli will automatically map the command you are trying to run to the repo/branch your local directory is on.
+If you don't provide a name, the cli will automatically map the command you are trying to run to the repo/branch your current working directory is on.
 
 ### runnable logs [name] [-b|-c]
 
-Use this command to view the logs of a container. You can specify the name of the container you are trying to reach in the following format: _reponame_/_branchname_. 
+Use this command to view the logs of a container. You can specify the name of the container you are trying to reach in the following format: < reponame >/ < branchname >. 
 
 If you don't provide a name, the cli will automatically map the command you are trying to run to the repo/branch your local directory is on.
 
@@ -45,6 +45,6 @@ Use this command to get an overview of all the different containers you have und
 
 You can drill down and list all the branches of a repository by specifying a repository name.
 
-### runnable upload <file>
+### runnable upload < file >
 
 Use this command to upload a file to the repository. The file will be placed on the root of the repository folder on the container. 
