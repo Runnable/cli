@@ -25,21 +25,21 @@ Use this command to authenticate your CLI session in your terminal. You will als
 
 Use this command to change the active Github organization in your session.
 
-### runnable ssh <name>(optional)
+### runnable ssh [name]
 
 Use this command to spawn a shell session into the container. You can specify the name of the container you are trying to reach in the following format: <reponame>/<branchname>.
 
 If you don't provide a name, the cli will automatically map the command you are trying to run to the repo/branch your local directory is on.
 
-### runnable logs <name>optional <-b|-c>(optional)
+### runnable logs [name] [-b|-c]
 
-Use this command to view the logs of a container. You can specify the name of the container you are trying to reach in the following format: <reponame>/<branchname>. 
+Use this command to view the logs of a container. You can specify the name of the container you are trying to reach in the following format: _reponame_/_branchname_. 
 
 If you don't provide a name, the cli will automatically map the command you are trying to run to the repo/branch your local directory is on.
 
 You can choose to view the build logs by adding the "-b" argument to the command. Conversely, you can view the CMD logs by adding the "-c" argument to the command. If you don't specify the aforementioned commands, the command will just follow the real time logs of the Container.
 
-### runnable list <repo-name>(optional)
+### runnable list [reponame]
 
 Use this command to get an overview of all the different containers you have under the active Github organization.
 
