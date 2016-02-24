@@ -4,6 +4,9 @@ Feature: SSH to Container
       | name | repo | branch | status | shortHash |
       | foo | Runnable/foo | master | Running | dead |
       | bar-foo | Runnable/foo | bar | Running | beef |
+    And the non-repository containers:
+      | name | status | shortHash |
+      | redis | Running | 4ed15 |
     And I am using the "Runnable" organization
 
   Scenario: SSH to specified container
@@ -43,5 +46,20 @@ Feature: SSH to Container
       """
       red leather
       yellow leather
+      """
+    And the exit status should be 0
+
+  Scenario: SSH to a non-repository container
+    Given the container named "redis" has terminal logs:
+      """
+      huzzah!!
+      """
+    When I run `runnable ssh redis` interactively
+    And I wait 1 second
+    And I type "echo hi"
+    And I finished my input
+    Then the output should contain:
+      """
+      huzzah!!
       """
     And the exit status should be 0

@@ -311,6 +311,10 @@ describe('Utils', function () {
         fetchInstances: sinon.stub().yieldsAsync(null, mockInstances),
         _org: 'foobar'
       }
+      // fetchInstances will do two things. first it returns instances matching
+      // a repo, second it returns instances matching a name.
+      mockUser.fetchInstances.onFirstCall().yieldsAsync(null, mockInstances)
+      mockUser.fetchInstances.onSecondCall().yieldsAsync(null, [])
       mockArgs = {
         _user: mockUser,
         repository: 'foo'
@@ -330,6 +334,46 @@ describe('Utils', function () {
             sinon.match.func
           )
         })
+    })
+
+    describe('when a repo was defined that does not exist', function () {
+      beforeEach(function (done) {
+        mockUser.fetchInstances.onFirstCall().yieldsAsync(null, [])
+        done()
+      })
+
+      it('should check to see if it a non-repo container', function (done) {
+        return assert.isFulfilled(utils.fetchInstanceForRepository(mockArgs))
+          .then(function () {
+            sinon.assert.calledTwice(mockUser.fetchInstances)
+            sinon.assert.calledWithExactly(
+              mockUser.fetchInstances.secondCall,
+              {
+                githubUsername: 'foobar',
+                name: 'foo'
+              },
+              sinon.match.func
+            )
+            done()
+          })
+      })
+
+      describe('when a non-repo container exists that matches', function () {
+        var mockMatchingInstance = { name: 'foo' }
+
+        beforeEach(function (done) {
+          mockUser.fetchInstances.onSecondCall().yieldsAsync(null, [ mockMatchingInstance ])
+          done()
+        })
+
+        it('should return the non-repo container', function (done) {
+          return assert.isFulfilled(utils.fetchInstanceForRepository(mockArgs))
+            .then(function (instance) {
+              assert.equal(instance, mockMatchingInstance)
+              done()
+            })
+        })
+      })
     })
 
     describe('when a branch was defined', function () {
