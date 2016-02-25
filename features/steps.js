@@ -8,7 +8,7 @@ var find = require('101/find')
 var findIndex = require('101/find-index')
 var fs = Promise.promisifyAll(require('fs'))
 var hasProps = require('101/has-properties')
-var isFuction = require('101/is-function')
+var isFunction = require('101/is-function')
 var path = require('path')
 var spawn = require('child_process').spawn
 
@@ -174,6 +174,8 @@ module.exports = function () {
       debug('stdout:', this.lastRun.stdout.toString())
       debug('stderr:', this.lastRun.stderr.toString())
     }.bind(this))
+    debug('child pid:', this.childProcess.pid)
+    return Promise.resolve().delay(process.env._STEP_DELAY_MS || 1000)
   })
 
   this.Given(/^I require a two\-factor code "([^"]*)"$/, function (code) {
@@ -194,7 +196,7 @@ module.exports = function () {
     var flushed = this.childProcess.stdin.write(input + '\r\n')
     debug('stdin flushed?', flushed)
     if (flushed) {
-      return Promise.resolve().delay(process.env._STEP_DELAY_MS || 1000)
+      return Promise.resolve().delay(process.env._STEP_DELAY_MS || 2000)
     } else {
       return new Promise(function (resolve) {
         this.childProcess.stdin.on('drain', resolve)
@@ -219,9 +221,12 @@ module.exports = function () {
           stdout: stdout,
           stderr: stderr
         }
+        debug('stdout:', stdout.toString())
+        debug('stderr:', stderr.toString())
       })
       .catch(function (err) {
         ctx.lastRun.error = err
+        debug('error:', err)
       })
   }
 
@@ -252,7 +257,7 @@ module.exports = function () {
     return Promise.try(function () {
       var actualOutput = this.lastRun.stdout
       // for node 0.10: if no .indexOf, use .toString first
-      if (!isFuction(actualOutput.indexOf)) {
+      if (!isFunction(actualOutput.indexOf)) {
         actualOutput = actualOutput.toString()
       }
       var actualIndex = actualOutput.indexOf(expectedOutput)
