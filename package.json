@@ -34,7 +34,6 @@
     "bluebird": "^3.3.1",
     "colors": "^1.0.3",
     "commander": "^2.7.1",
-    "console.table": "^0.4.0",
     "debug": "^2.1.1",
     "docker-stream-cleanser": "^0.3.0",
     "easy-table": "^1.0.0",

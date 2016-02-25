@@ -1,6 +1,5 @@
 'use strict'
 
-// require('console.table')
 var program = require('commander')
 
 var runnable = require('../lib/runnable')
