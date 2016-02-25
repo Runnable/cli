@@ -16,12 +16,15 @@ var currentVersion = packageData.version
 var name = packageData.name
 
 console.log('Current version:'.bold, semver.clean(currentVersion))
-Promise.fromCallback(npm.load.bind(npm, { silent: true }))
+var npmConfig = {
+  registry: process.env.RUNNABLE_NPM_REGISTRY || 'https://registry.npmjs.org/',
+  'cache-min': 0
+}
+Promise.fromCallback(npm.load.bind(npm, npmConfig))
   .then(function () {
     return Promise.fromCallback(function (callback) {
       npm.commands['view']([name, 'version'], true, callback)
     })
-    // return Promise.fromCallback(npm.view.bind(npm, [name, 'version'], true))
   })
   .then(function (versionObject) {
     if (!versionObject || isEmpty(versionObject)) {
@@ -29,7 +32,7 @@ Promise.fromCallback(npm.load.bind(npm, { silent: true }))
     }
     var remoteVersion = Object.keys(versionObject)[0]
     console.log('Remote version (latest):'.bold, semver.clean(remoteVersion))
-    if (semver.gt(currentVersion, remoteVersion)) {
+    if (semver.lt(currentVersion, remoteVersion)) {
       console.log('You are out of date!'.red.bold)
       console.log('To update your `runnable` version, run `npm install -g @runnable/cli`')
     } else {

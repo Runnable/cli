@@ -24,6 +24,7 @@ module.exports = function () {
     this.environment = {
       RUNNABLE_HOST: 'http://localhost:8080',
       RUNNABLE_GITHUB_URL: 'http://localhost:8080',
+      RUNNABLE_NPM_REGISTRY: 'http://localhost:8080/npm/',
       DEBUG: '' // prevent debug logs from child process
     }
 
@@ -257,6 +258,20 @@ function makeExpressApp (ctx) {
 
   app.get('/docks', function (req, res) {
     res.json(ctx.availableDocks)
+  })
+
+  app.get('/npm/@runnable%2fcli', function (req, res) {
+    var infoFile = path.resolve(__dirname, 'npm-info.json')
+    if (require.cache[infoFile]) {
+      delete require.cache[infoFile]
+    }
+    var data = require('./npm-info.json')
+    data['dist-tags'].latest = ctx.latestModuleVersion
+    data.versions[ctx.latestModuleVersion] = data.versions['0.0.0']
+    data.versions[ctx.latestModuleVersion].version = ctx.latestModuleVersion
+    delete data.versions['0.0.0']
+    debug('sending versions ' + Object.keys(data.versions).join(', '))
+    res.send(data)
   })
 
   return app
