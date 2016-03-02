@@ -88,8 +88,9 @@ describe('Upload Methods', function () {
     it('should upload the file', function () {
       return assert.isFulfilled(upload.uploadFile(mockArgs))
         .then(function () {
-          sinon.assert.calledOnce(mockContainer.createFile)
-          sinon.assert.calledWithExactly(
+          sinon.assert.calledTwice(mockContainer.createFile)
+          var fileSpyCall = mockContainer.createFile.getCall(1)
+          fileSpyCall.calledWithExactly(
             mockContainer.createFile,
             {
               name: 'mockFile.txt',
