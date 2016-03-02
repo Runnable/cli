@@ -96,6 +96,9 @@ module.exports = function () {
   })
 
   this.Then(/^the file "([^"]*)" should have been uploaded to the container$/, function (name) {
+    if (!this.fileUploads) {
+      throw new Error('there was no files uploaded to the server')
+    }
     var file = find(this.fileUploads, hasProps({ name: name }))
     if (!file) {
       throw new Error('there was no file named "' + name + '" uploaded to the server')
