@@ -54,6 +54,9 @@
    * =================
    */
 
+  // Don't require semicolons
+  "asi": true,
+
   // Suppress warnings about == null comparisons.
   "eqnull": true,
 

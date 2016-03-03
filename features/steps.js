@@ -105,6 +105,16 @@ module.exports = function () {
     }
   })
 
+  this.Then(/^the path in the container should be "([^"]*)"$/, function (path) {
+    if (!this.fileUploads) {
+      throw new Error('there was no files uploaded to the server')
+    }
+    var file = find(this.fileUploads, hasProps({ path: path }))
+    if (!file) {
+      throw new Error('there was no file with path "' + path + '" uploaded to the server')
+    }
+  })
+
   function createRepository (ctx, dir) {
     var prevDir = ctx._fs.cwd
     return createDirectory(ctx, dir)
