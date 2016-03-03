@@ -43,3 +43,10 @@ Feature: Organization Selection
       """
     And the exit status should be 0
     And I should be using the "Runnabear" organization
+
+  Scenario: Choosing an Invalid Organization
+    When I run `runnable org` interactively
+    And I type "foobar"
+    And I finished my input
+    Then the output should contain "Could not parse your selection"
+    And I should be using the "Runnable" organization
