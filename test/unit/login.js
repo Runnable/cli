@@ -319,10 +319,12 @@ describe('Login', function () {
       }
       mockArgs = { _user: mockUser }
       sinon.stub(Login, '_read').resolves('1')
+      sinon.stub(Login, '_output')
     })
 
     afterEach(function () {
       Login._read.restore()
+      Login._output.restore()
     })
 
     describe('errors', function () {
@@ -363,6 +365,36 @@ describe('Login', function () {
           sinon.assert.calledWithExactly(
             Login._read,
             { prompt: sinon.match.string }
+          )
+        })
+    })
+
+    it('should pick an org by name', function () {
+      Login._read.resolves('foo')
+      return assert.isFulfilled(Login.chooseOrg(mockArgs))
+        .then(function (org) {
+          assert.equal(org, 'foo')
+        })
+    })
+
+    it('should prompt twice if the first input was bad', function () {
+      Login._read.onFirstCall().resolves('baz')
+      Login._read.onSecondCall().resolves('2')
+      return assert.isFulfilled(Login.chooseOrg(mockArgs))
+        .then(function (org) {
+          assert.equal(org, 'foo')
+          sinon.assert.calledTwice(Login._read)
+        })
+    })
+
+    it('should print the selected org', function () {
+      return assert.isFulfilled(Login.chooseOrg(mockArgs))
+        .then(function () {
+          sinon.assert.calledOnce(Login._output)
+          sinon.assert.calledWithExactly(
+            Login._output,
+            sinon.match(/selected organization/i),
+            'bar'
           )
         })
     })
