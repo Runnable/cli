@@ -261,15 +261,6 @@ describe('Utils', function () {
           /remote.*repo.*origin/
         )
       })
-
-      it('should throw an error if the branch doesnt exist', function () {
-        simpleGit.prototype.revparse.yieldsAsync(null, undefined)
-        return assert.isRejected(
-          utils.getRepositoryForCurrentDirectory(),
-          Error,
-          /branch.*not.*found/
-        )
-      })
     })
 
     it('should get the local remotes', function () {

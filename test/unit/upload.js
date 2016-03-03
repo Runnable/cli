@@ -38,14 +38,18 @@ describe('Upload Methods', function () {
       mockUser.newInstance = sinon.stub().returns(mockInstance)
       sinon.stub(utils, 'getRepositoryAndInstance')
       sinon.stub(fs, 'readFile').yieldsAsync(null, mockFileData)
+      sinon.spy(upload, '_createFile')
+      sinon.spy(upload, '_recusivelyCreateDirectories')
     })
 
     afterEach(function () {
       utils.getRepositoryAndInstance.restore()
       fs.readFile.restore()
+      upload._createFile.restore()
+      upload._recusivelyCreateDirectories.restore()
     })
 
-    describe('Top level directory', function () {
+    describe('to a top level directory', function () {
       beforeEach(function () {
         mockArgs = { _user: mockUser, file: 'mockFile.txt' }
         utils.getRepositoryAndInstance.resolves([ mockArgs, mockInstance ])
@@ -93,23 +97,24 @@ describe('Upload Methods', function () {
       it('should upload the file', function () {
         return assert.isFulfilled(upload.uploadFile(mockArgs))
           .then(function () {
-            sinon.assert.calledOnce(mockContainer.createFile)
-            var fileSpyCall = mockContainer.createFile.getCall(0)
-            fileSpyCall.calledWithExactly(
-              mockContainer.createFile,
-              {
-                name: 'mockFile.txt',
-                path: sinon.match.string,
-                isDir: false,
-                content: 'mockFileData'
-              },
-              sinon.match.func
+            sinon.assert.calledWith(
+              upload._recusivelyCreateDirectories,
+              sinon.match(mockContainer),
+              '/cwd',
+              ''
+            )
+            sinon.assert.calledWith(
+              upload._createFile,
+              sinon.match(mockContainer),
+              '/cwd',
+              'mockFile.txt',
+              sinon.match(mockFileData)
             )
           })
       })
     })
 
-    describe('Child directory', function () {
+    describe('to a child directory', function () {
       beforeEach(function () {
         mockArgs = {
           _user: mockUser,
@@ -119,117 +124,23 @@ describe('Upload Methods', function () {
         utils.getRepositoryAndInstance.resolves([ mockArgs, mockInstance ])
       })
 
-      describe('Child directory not created', function () {
-        it('should upload the file to the specified directory', function () {
-          return assert.isFulfilled(upload.uploadFile(mockArgs))
-            .then(function () {
-              assert.equal(
-                mockContainer.createFile.callCount,
-                4,
-                'it was called correctly'
-              )
-              var fileSpyCall = mockContainer.createFile.getCall(2)
-              fileSpyCall.calledWithExactly(
-                mockContainer.createFile,
-                {
-                  name: 'mockFile.txt',
-                  path: sinon.match(/super-path/i),
-                  isDir: false,
-                  content: 'mockFileData'
-                },
-                sinon.match.func
-              )
-            })
-        })
-
-        it('should always create all necessary directories', function () {
-          return assert.isFulfilled(upload.uploadFile(mockArgs))
-            .then(function () {
-              assert.equal(
-                mockContainer.createFile.callCount,
-                4,
-                'it was called correctly'
-              )
-              var directorySpyCall = mockContainer.createFile.getCall(0)
-              directorySpyCall.calledWithExactly(
-                mockContainer.createFile,
-                {
-                  name: 'cwd',
-                  path: sinon.match.string,
-                  isDir: true
-                },
-                sinon.match.func
-              )
-              var directorySpyCall2 = mockContainer.createFile.getCall(1)
-              directorySpyCall2.calledWithExactly(
-                mockContainer.createFile,
-                {
-                  name: 'super-path',
-                  path: sinon.match.string,
-                  isDir: true
-                },
-                sinon.match.func
-              )
-              var directorySpyCall3 = mockContainer.createFile.getCall(2)
-              directorySpyCall3.calledWithExactly(
-                mockContainer.createFile,
-                {
-                  name: 'another-path',
-                  path: sinon.match.string,
-                  isDir: true
-                },
-                sinon.match.func
-              )
-            })
-        })
-      })
-
-      describe('Not existing child directories', function () {
-        beforeEach(function () {
-          mockContainer.createFile.onThirdCall()
-            .yieldsAsync(new Error('Exists'))
-        })
-
-        it('should always create all necessary directories', function () {
-          return assert.isFulfilled(upload.uploadFile(mockArgs))
-            .then(function () {
-              assert.equal(
-                mockContainer.createFile.callCount,
-                4,
-                'it was called correctly'
-              )
-              var directorySpyCall = mockContainer.createFile.getCall(0)
-              directorySpyCall.calledWithExactly(
-                mockContainer.createFile,
-                {
-                  name: 'cwd',
-                  path: sinon.match.string,
-                  isDir: true
-                },
-                sinon.match.func
-              )
-              var directorySpyCall2 = mockContainer.createFile.getCall(1)
-              directorySpyCall2.calledWithExactly(
-                mockContainer.createFile,
-                {
-                  name: 'super-path',
-                  path: sinon.match.string,
-                  isDir: true
-                },
-                sinon.match.func
-              )
-              var directorySpyCall3 = mockContainer.createFile.getCall(2)
-              directorySpyCall3.calledWithExactly(
-                mockContainer.createFile,
-                {
-                  name: 'another-path',
-                  path: sinon.match.string,
-                  isDir: true
-                },
-                sinon.match.func
-              )
-            })
-        })
+      it('should upload the file to the specified directory', function () {
+        return assert.isFulfilled(upload.uploadFile(mockArgs))
+          .then(function () {
+            sinon.assert.calledWith(
+              upload._recusivelyCreateDirectories,
+              sinon.match(mockContainer),
+              '/cwd',
+              '/super-path/another-path'
+            )
+            sinon.assert.calledWith(
+              upload._createFile,
+              sinon.match(mockContainer),
+              '/cwd/super-path/another-path',
+              'mockFile.txt',
+              sinon.match(mockFileData)
+            )
+          })
       })
     })
   })
