@@ -95,22 +95,16 @@ module.exports = function () {
     )
   })
 
-  this.Then(/^the file "([^"]*)" should have been uploaded to the container$/, function (name) {
+  this.Then(/^the file "([^"]*)" should have been uploaded to "([^"]*)"$/, function (name, path) {
     if (!this.fileUploads) {
       throw new Error('there was no files uploaded to the server')
     }
-    var file = find(this.fileUploads, hasProps({ name: name }))
-    if (!file) {
+    var fileWithName = find(this.fileUploads, hasProps({ name: name }))
+    if (!fileWithName) {
       throw new Error('there was no file named "' + name + '" uploaded to the server')
     }
-  })
-
-  this.Then(/^the path in the container should be "([^"]*)"$/, function (path) {
-    if (!this.fileUploads) {
-      throw new Error('there was no files uploaded to the server')
-    }
-    var file = find(this.fileUploads, hasProps({ path: path }))
-    if (!file) {
+    var fileWithPath = find(this.fileUploads, hasProps({ path: path }))
+    if (!fileWithPath) {
       throw new Error('there was no file with path "' + path + '" uploaded to the server')
     }
   })

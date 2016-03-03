@@ -20,8 +20,7 @@ Feature: Upload
       Uploaded file.
       """
     And the exit status should be 0
-    And the file "test.txt" should have been uploaded to the container
-    And the path in the container should be "/working-dir"
+    And the file "test.txt" should have been uploaded to "/working-dir"
 
   Scenario: Upload a single file to the specified path
     Given I am in the "Runnable/foo" git repository
@@ -37,5 +36,4 @@ Feature: Upload
       Uploaded file.
       """
     And the exit status should be 0
-    And the file "test.txt" should have been uploaded to the container
-    And the path in the container should be "/working-dir/var/foo"
+    And the file "test.txt" should have been uploaded to "/working-dir/var/foo"
