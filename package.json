@@ -7,6 +7,9 @@
   "bin": {
     "runnable": "./bin/runnable.js"
   },
+  "engines": {
+    "node": ">=4 <5"
+  },
   "scripts": {
     "changelog": "github-changes -o Runnable -r cli -a --only-pulls --use-commit-body --order-semver",
     "coverage": "istanbul cover node_modules/.bin/_mocha -- --recursive && npm run coverage-check",
