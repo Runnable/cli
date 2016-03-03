@@ -6,7 +6,7 @@ var runnable = require('../lib/runnable')
 
 program
   .arguments('<file>')
-  .arguments('<file>', 'Destination path in then container for the specified file', '')
+  .arguments('<file> [dest]')
   .description('Upload a file to the container for your local branch.')
   .parse(process.argv)
 
