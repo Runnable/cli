@@ -14,6 +14,6 @@ script:
 - npm run coverage
 - npm run feature
 after_script:
-- npm run coveralls
+- if [[ -e ./coverage/lcov.info ]]; npm run coveralls; else false; fi
 notifications:
   email: false
