@@ -3,8 +3,9 @@
 var chai = require('chai')
 var sinon = require('sinon')
 var fs = require('fs')
+var Promise = require('bluebird')
 
-require('sinon-as-promised')(require('bluebird'))
+require('sinon-as-promised')(Promise)
 chai.use(require('chai-as-promised'))
 var assert = chai.assert
 
@@ -12,16 +13,20 @@ var utils = require('../../lib/utils')
 var upload = require('../../lib/upload')
 
 describe('Upload Methods', function () {
+  var mockContainer
+  var mockFileData = new Buffer('mockFileData')
+
+  beforeEach(function () {
+    mockContainer = {}
+    mockContainer.createFile = sinon.stub().yieldsAsync()
+  })
+
   describe('uploadFile', function () {
     var mockArgs
     var mockInstance
-    var mockContainer
     var mockUser
-    var mockFileData = new Buffer('mockFileData')
 
     beforeEach(function () {
-      mockContainer = {}
-      mockContainer.createFile = sinon.stub().yieldsAsync()
       mockInstance = {
         _id: 'mockInstanceId',
         container: {
@@ -142,6 +147,116 @@ describe('Upload Methods', function () {
             )
           })
       })
+    })
+  })
+
+  describe('_recusivelyCreateDirectories', function () {
+    var parentPath = '/cwd'
+
+    beforeEach(function () {
+      sinon.stub(upload, '_createDirectory')
+    })
+
+    afterEach(function () {
+      upload._createDirectory.restore()
+    })
+
+    describe('with non-existing directories', function () {
+      beforeEach(function () {
+        upload._createDirectory.resolves()
+      })
+
+      it('should not create any directories if none are passed', function () {
+        return assert.isFulfilled(upload._recusivelyCreateDirectories(mockContainer, parentPath, '/'))
+          .then(function () {
+            assert.equal(upload._createDirectory.callCount, 0)
+          })
+      })
+
+      it('should create all directories', function () {
+        return assert.isFulfilled(upload._recusivelyCreateDirectories(mockContainer, parentPath, '/0/1/2/3/4/'))
+          .then(function () {
+            assert.equal(upload._createDirectory.callCount, 5)
+            var arr = [0, 1, 2, 3, 4]
+            arr.forEach(function (num) {
+              var call = upload._createDirectory.getCall(num)
+              call.calledWith(sinon.match.any, parentPath, num)
+            })
+          })
+      })
+
+      it('should not care whether theres a forward slash at the end', function () {
+        return assert.isFulfilled(upload._recusivelyCreateDirectories(mockContainer, parentPath, '0/1/2'))
+          .then(function () {
+            assert.equal(upload._createDirectory.callCount, 3)
+            var arr = [0, 1, 2]
+            arr.forEach(function (num) {
+              var call = upload._createDirectory.getCall(num)
+              call.calledWith(sinon.match.any, parentPath, num)
+            })
+          })
+      })
+    })
+
+    describe('with existing directories', function () {
+      beforeEach(function () {
+        upload._createDirectory.rejects()
+      })
+
+      it('should create all directories', function () {
+        return assert.isFulfilled(upload._recusivelyCreateDirectories(mockContainer, parentPath, '/0/1/2/3/4/'))
+          .then(function () {
+            assert.equal(upload._createDirectory.callCount, 5)
+            var arr = [0, 1, 2, 3, 4]
+            arr.forEach(function (num) {
+              var call = upload._createDirectory.getCall(num)
+              call.calledWith(sinon.match.any, parentPath, num)
+            })
+          })
+      })
+    })
+  })
+
+  describe('_createFile', function () {
+    var path = '/cwd/hello/world'
+    var file = 'hello.js'
+
+    it('should call the container.createFile method', function () {
+      upload._createFile(mockContainer, path, file, mockFileData)
+      sinon.assert.calledWith(
+        mockContainer.createFile,
+        {
+          path: path,
+          name: file,
+          isDir: false,
+          content: mockFileData.toString()
+        },
+        sinon.match.func
+      )
+    })
+
+    it('should return a promise', function () {
+      assert.isFulfilled(upload._createFile(mockContainer, path, file, mockFileData))
+    })
+  })
+
+  describe('_createDirectory', function () {
+    var path = '/cwd/hello/world'
+    var newPath = 'again'
+
+    it('should call the container.createFile method', function () {
+      return assert.isFulfilled(upload._createDirectory(mockContainer, path, newPath))
+        .then(function () {
+          sinon.assert.calledWith(
+            mockContainer.createFile,
+            {
+              path: path,
+              name: newPath,
+              isDir: true
+            },
+            sinon.match.func
+          )
+        })
     })
   })
 })
