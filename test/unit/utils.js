@@ -248,7 +248,7 @@ describe('Utils', () => {
         )
       })
 
-      it('should throw an error if there is not origin remote', function () {
+      it('should throw an error if there is not "origin" remote', function () {
         simpleGit.prototype.getRemotes.yieldsAsync(null, [{
           name: 'not-origin',
           refs: { push: 'git@github.com:Runnable/foo.git' }
@@ -256,7 +256,7 @@ describe('Utils', () => {
         return assert.isRejected(
           Utils.getRepositoryForCurrentDirectory(),
           Error,
-          /remote.*repo.*origin/
+          /no remote repo.+origin/i
         )
       })
     })
