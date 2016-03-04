@@ -22,6 +22,7 @@ Feature: Login into Runnable
 
       >
       """
+    And the output should contain "Selected organization:"
     And the exit status should be 0
     And I should be using the "Runnabear" organization
     And there should be a token generated for "bkendall"
@@ -40,6 +41,7 @@ Feature: Login into Runnable
     And the output should contain "Two-factor code:"
     And the output should contain "Authenticated"
     And the output should contain "Choose a GitHub organization"
+    And the output should contain "Selected organization:"
     And the exit status should be 0
     And I should be using the "Runnable" organization
     And there should be a token generated for "bkendall"
