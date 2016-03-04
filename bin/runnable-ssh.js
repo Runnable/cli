@@ -1,16 +1,15 @@
 'use strict'
 
-var program = require('commander')
+const program = require('commander')
 
-var runnable = require('../lib/runnable')
+const SSH = require('../lib/ssh')
 
 program
   .arguments('[repository]')
   .description('Starts a terminal session on the container for your local branch.')
   .parse(process.argv)
 
-var options = {
-  _user: runnable.user,
+const options = {
   repository: program.args.shift()
 }
-runnable.connectTerminalStream(options)
+SSH.connectTerminalStream(options)

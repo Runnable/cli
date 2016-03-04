@@ -1,73 +1,70 @@
 'use strict'
 
-var EventEmitter = require('events')
-if (/^v0\.1\d\.\d\d$/.test(process.version)) {
-  EventEmitter = require('events').EventEmitter
-}
-var chai = require('chai')
-var sinon = require('sinon')
+const EventEmitter = require('events')
+const chai = require('chai')
+const sinon = require('sinon')
 
 require('sinon-as-promised')(require('bluebird'))
 chai.use(require('chai-as-promised'))
-var assert = chai.assert
+const assert = chai.assert
 
-var utils = require('../../lib/utils')
-var ssh = require('../../lib/ssh')
+const Utils = require('../../lib/utils')
+const SSH = require('../../lib/ssh')
 
-describe('SSH Methods', function () {
+describe('SSH Methods', () => {
   var mockArgs
   var mockInstance
   var mockSocket
   var mockSubstream
 
-  describe('connectTerminalStream', function () {
-    beforeEach(function () {
-      sinon.stub(utils, 'getRepositoryAndInstance').resolves([ mockArgs, mockInstance ])
-      sinon.stub(ssh, '_connectToContainerStream').resolves()
+  describe('connectTerminalStream', () => {
+    beforeEach(() => {
+      sinon.stub(Utils, 'getRepositoryAndInstance').resolves([ mockArgs, mockInstance ])
+      sinon.stub(SSH, '_connectToContainerStream').resolves()
     })
 
-    afterEach(function () {
-      utils.getRepositoryAndInstance.restore()
-      ssh._connectToContainerStream.restore()
+    afterEach(() => {
+      Utils.getRepositoryAndInstance.restore()
+      SSH._connectToContainerStream.restore()
     })
 
-    describe('errors', function () {
-      it('should reject with any getRepositoryAndInstance error', function () {
-        utils.getRepositoryAndInstance.rejects(new Error('robot'))
+    describe('errors', () => {
+      it('should reject with any getRepositoryAndInstance error', () => {
+        Utils.getRepositoryAndInstance.rejects(new Error('robot'))
         return assert.isRejected(
-          ssh.connectTerminalStream(mockArgs),
+          SSH.connectTerminalStream(mockArgs),
           Error,
           'robot'
         )
       })
 
-      it('should reject with any _connectToContainerStream error', function () {
-        ssh._connectToContainerStream.rejects(new Error('doobie'))
+      it('should reject with any _connectToContainerStream error', () => {
+        SSH._connectToContainerStream.rejects(new Error('doobie'))
         return assert.isRejected(
-          ssh.connectTerminalStream(mockArgs),
+          SSH.connectTerminalStream(mockArgs),
           Error,
           'doobie'
         )
       })
     })
 
-    it('should get the repository and instance', function () {
-      return assert.isFulfilled(ssh.connectTerminalStream(mockArgs))
-        .then(function () {
-          sinon.assert.calledOnce(utils.getRepositoryAndInstance)
+    it('should get the repository and instance', () => {
+      return assert.isFulfilled(SSH.connectTerminalStream(mockArgs))
+        .then(() => {
+          sinon.assert.calledOnce(Utils.getRepositoryAndInstance)
           sinon.assert.calledWithExactly(
-            utils.getRepositoryAndInstance,
+            Utils.getRepositoryAndInstance,
             mockArgs
           )
         })
     })
 
-    it('should connect to the container stream', function () {
-      return assert.isFulfilled(ssh.connectTerminalStream(mockArgs))
-        .then(function () {
-          sinon.assert.calledOnce(ssh._connectToContainerStream)
+    it('should connect to the container stream', () => {
+      return assert.isFulfilled(SSH.connectTerminalStream(mockArgs))
+        .then(() => {
+          sinon.assert.calledOnce(SSH._connectToContainerStream)
           sinon.assert.calledWithExactly(
-            ssh._connectToContainerStream,
+            SSH._connectToContainerStream,
             mockArgs,
             mockInstance
           )
@@ -75,8 +72,8 @@ describe('SSH Methods', function () {
     })
   })
 
-  describe('_connectToContainerStream', function () {
-    beforeEach(function () {
+  describe('_connectToContainerStream', () => {
+    beforeEach(() => {
       mockInstance = {
         container: {
           dockerContainer: 'mockContainerId',
@@ -90,7 +87,7 @@ describe('SSH Methods', function () {
       mockSocket.substream = sinon.stub().returns(mockSubstream)
       mockSocket.write = sinon.stub()
       mockSocket.end = sinon.stub()
-      sinon.stub(utils, 'createSocket').returns(mockSocket)
+      sinon.stub(Utils, 'createSocket').returns(mockSocket)
       sinon.spy(process.stdin, 'setEncoding')
       sinon.spy(process.stdin, 'setRawMode')
       sinon.stub(process.stdin, 'end')
@@ -102,8 +99,8 @@ describe('SSH Methods', function () {
       }
     })
 
-    afterEach(function () {
-      utils.createSocket.restore()
+    afterEach(() => {
+      Utils.createSocket.restore()
       process.stdin.setEncoding.restore()
       process.stdin.setRawMode.restore()
       process.stdin.end.restore()
@@ -115,20 +112,20 @@ describe('SSH Methods', function () {
       }
     })
 
-    it('should create a socket', function () {
-      return assert.isFulfilled(ssh._connectToContainerStream(mockArgs, mockInstance))
-        .then(function () {
-          sinon.assert.calledOnce(utils.createSocket)
+    it('should create a socket', () => {
+      return assert.isFulfilled(SSH._connectToContainerStream(mockArgs, mockInstance))
+        .then(() => {
+          sinon.assert.calledOnce(Utils.createSocket)
           sinon.assert.calledWithExactly(
-            utils.createSocket,
+            Utils.createSocket,
             mockArgs
           )
         })
     })
 
-    it('should create a terminal stream', function () {
-      return assert.isFulfilled(ssh._connectToContainerStream(mockArgs, mockInstance))
-        .then(function () {
+    it('should create a terminal stream', () => {
+      return assert.isFulfilled(SSH._connectToContainerStream(mockArgs, mockInstance))
+        .then(() => {
           sinon.assert.calledOnce(mockSocket.substream)
           sinon.assert.calledWithExactly(
             mockSocket.substream,
@@ -137,9 +134,9 @@ describe('SSH Methods', function () {
         })
     })
 
-    it('should add an end handler for the substream', function () {
-      return assert.isFulfilled(ssh._connectToContainerStream(mockArgs, mockInstance))
-        .then(function () {
+    it('should add an end handler for the substream', () => {
+      return assert.isFulfilled(SSH._connectToContainerStream(mockArgs, mockInstance))
+        .then(() => {
           sinon.assert.calledOnce(mockSubstream.on)
           sinon.assert.calledWithExactly(
             mockSubstream.on,
@@ -149,18 +146,18 @@ describe('SSH Methods', function () {
         })
     })
 
-    it('should clean up streams when the substream ends', function () {
-      return assert.isFulfilled(ssh._connectToContainerStream(mockArgs, mockInstance))
-        .then(function () {
+    it('should clean up streams when the substream ends', () => {
+      return assert.isFulfilled(SSH._connectToContainerStream(mockArgs, mockInstance))
+        .then(() => {
           mockSubstream.emit('end')
           sinon.assert.calledOnce(process.stdin.end)
           sinon.assert.calledOnce(mockSocket.end)
         })
     })
 
-    it('should setup stdin correctly', function () {
-      return assert.isFulfilled(ssh._connectToContainerStream(mockArgs, mockInstance))
-        .then(function () {
+    it('should setup stdin correctly', () => {
+      return assert.isFulfilled(SSH._connectToContainerStream(mockArgs, mockInstance))
+        .then(() => {
           sinon.assert.calledOnce(process.stdin.setEncoding)
           sinon.assert.calledWithExactly(
             process.stdin.setEncoding,
@@ -181,27 +178,27 @@ describe('SSH Methods', function () {
         })
     })
 
-    describe('when stdin is not tty', function () {
+    describe('when stdin is not tty', () => {
       var prevTTY = process.stdin.isTTY
-      beforeEach(function () {
+      beforeEach(() => {
         process.stdin.isTTY = false
       })
 
-      afterEach(function () {
+      afterEach(() => {
         process.stdin.isTTY = prevTTY
       })
 
-      it('should not set raw mode', function () {
-        return assert.isFulfilled(ssh._connectToContainerStream(mockArgs, mockInstance))
-          .then(function () {
+      it('should not set raw mode', () => {
+        return assert.isFulfilled(SSH._connectToContainerStream(mockArgs, mockInstance))
+          .then(() => {
             sinon.assert.notCalled(process.stdin.setRawMode)
           })
       })
     })
 
-    it('should pipe the terminal stream to stdout', function () {
-      return assert.isFulfilled(ssh._connectToContainerStream(mockArgs, mockInstance))
-        .then(function () {
+    it('should pipe the terminal stream to stdout', () => {
+      return assert.isFulfilled(SSH._connectToContainerStream(mockArgs, mockInstance))
+        .then(() => {
           sinon.assert.calledOnce(mockSubstream.pipe)
           sinon.assert.calledWithExactly(
             mockSubstream.pipe,
@@ -210,9 +207,9 @@ describe('SSH Methods', function () {
         })
     })
 
-    it('should write to the socket to start the substream', function () {
-      return assert.isFulfilled(ssh._connectToContainerStream(mockArgs, mockInstance))
-        .then(function () {
+    it('should write to the socket to start the substream', () => {
+      return assert.isFulfilled(SSH._connectToContainerStream(mockArgs, mockInstance))
+        .then(() => {
           sinon.assert.calledOnce(mockSocket.write)
           sinon.assert.calledWithExactly(
             mockSocket.write,

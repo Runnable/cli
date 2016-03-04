@@ -1,30 +1,28 @@
 'use strict'
 
-var chai = require('chai')
-var os = require('os')
-var request = require('request')
-var sinon = require('sinon')
+const chai = require('chai')
+const os = require('os')
+const request = require('request')
+const sinon = require('sinon')
 
 require('sinon-as-promised')(require('bluebird'))
 chai.use(require('chai-as-promised'))
-var assert = chai.assert
+const assert = chai.assert
 
-var Login = require('../../lib/login')
+const Login = require('../../lib/login')
 
-describe('Login', function () {
-  describe('login', function () {
-    var mockArgs
-    var mockUser
-    var mockRes
-    var mockBody
+describe('Login', () => {
+  describe('login', () => {
+    const mockArgs = {}
+    let mockUser
+    let mockRes
+    let mockBody
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockUser = {
         githubLogin: sinon.stub().yieldsAsync()
       }
-      mockArgs = {
-        _user: mockUser
-      }
+      Login.user = mockUser
       mockRes = {
         statusCode: 201,
         headers: {}
@@ -40,14 +38,14 @@ describe('Login', function () {
       sinon.stub(Login, '_output')
     })
 
-    afterEach(function () {
+    afterEach(() => {
       Login._makeRequest.restore()
       Login._read.restore()
       Login._output.restore()
     })
 
-    describe('errors', function () {
-      it('should reject with any read error', function () {
+    describe('errors', () => {
+      it('should reject with any read error', () => {
         Login._read.onFirstCall().rejects(new Error('robot'))
         return assert.isRejected(
           Login.login(mockArgs),
@@ -56,7 +54,7 @@ describe('Login', function () {
         )
       })
 
-      it('should reject with any request error', function () {
+      it('should reject with any request error', () => {
         Login._makeRequest.rejects(new Error('robot'))
         return assert.isRejected(
           Login.login(mockArgs),
@@ -65,7 +63,7 @@ describe('Login', function () {
         )
       })
 
-      it('should reject with any login error', function () {
+      it('should reject with any login error', () => {
         mockUser.githubLogin.yieldsAsync(new Error('robot'))
         return assert.isRejected(
           Login.login(mockArgs),
@@ -74,7 +72,7 @@ describe('Login', function () {
         )
       })
 
-      it('should reject if the token cannot be created', function () {
+      it('should reject if the token cannot be created', () => {
         mockRes.statusCode = 400
         return assert.isRejected(
           Login.login(mockArgs),
@@ -83,7 +81,7 @@ describe('Login', function () {
         )
       })
 
-      it('should reject if the token does not come back in the body', function () {
+      it('should reject if the token does not come back in the body', () => {
         mockBody.token = null
         return assert.isRejected(
           Login.login(mockArgs),
@@ -93,9 +91,9 @@ describe('Login', function () {
       })
     })
 
-    it('should prompt for a username', function () {
+    it('should prompt for a username', () => {
       return assert.isFulfilled(Login.login(mockArgs))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledTwice(Login._read)
           sinon.assert.calledWithExactly(
             Login._read.firstCall,
@@ -104,9 +102,9 @@ describe('Login', function () {
         })
     })
 
-    it('should prompt for a password', function () {
+    it('should prompt for a password', () => {
       return assert.isFulfilled(Login.login(mockArgs))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledTwice(Login._read)
           sinon.assert.calledWithExactly(
             Login._read.secondCall,
@@ -119,9 +117,9 @@ describe('Login', function () {
         })
     })
 
-    it('should make an authentication request', function () {
+    it('should make an authentication request', () => {
       return assert.isFulfilled(Login.login(mockArgs))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(Login._makeRequest)
           sinon.assert.calledWithExactly(
             Login._makeRequest,
@@ -133,9 +131,9 @@ describe('Login', function () {
         })
     })
 
-    it('should login to runnable', function () {
+    it('should login to runnable', () => {
       return assert.isFulfilled(Login.login(mockArgs))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(mockUser.githubLogin)
           sinon.assert.calledWithExactly(
             mockUser.githubLogin,
@@ -145,14 +143,14 @@ describe('Login', function () {
         })
     })
 
-    describe('with two factor auth', function () {
-      beforeEach(function () {
+    describe('with two factor auth', () => {
+      beforeEach(() => {
         mockRes.headers['x-github-otp'] = 'required'
       })
 
-      it('should ask for a one time password', function () {
+      it('should ask for a one time password', () => {
         return assert.isFulfilled(Login.login(mockArgs))
-          .then(function () {
+          .then(() => {
             sinon.assert.calledThrice(Login._read)
             sinon.assert.calledWithExactly(
               Login._read.thirdCall,
@@ -165,9 +163,9 @@ describe('Login', function () {
           })
       })
 
-      it('should make a second request with the token', function () {
+      it('should make a second request with the token', () => {
         return assert.isFulfilled(Login.login(mockArgs))
-          .then(function () {
+          .then(() => {
             sinon.assert.calledTwice(Login._makeRequest)
             sinon.assert.calledWithExactly(
               Login._makeRequest.secondCall,
@@ -182,25 +180,25 @@ describe('Login', function () {
     })
   })
 
-  describe('_makeRequest', function () {
-    var mockCreds = {
+  describe('_makeRequest', () => {
+    const mockCreds = {
       user: 'username',
       pass: 'password'
     }
-    var mockToken = '000000'
-    var mockRes = { res: 'res' }
-    var mockBody = { body: 'body' }
+    const mockToken = '000000'
+    const mockRes = { res: 'res' }
+    const mockBody = { body: 'body' }
 
-    beforeEach(function () {
+    beforeEach(() => {
       sinon.stub(request, 'post').yieldsAsync(null, mockRes, mockBody)
     })
 
-    afterEach(function () {
+    afterEach(() => {
       request.post.restore()
     })
 
-    describe('errors', function () {
-      it('should reject with any error from post', function () {
+    describe('errors', () => {
+      it('should reject with any error from post', () => {
         request.post.yieldsAsync(new Error('robot'))
         return assert.isRejected(
           Login._makeRequest(mockCreds),
@@ -210,9 +208,9 @@ describe('Login', function () {
       })
     })
 
-    it('should make a request to github', function () {
+    it('should make a request to github', () => {
       return assert.isFulfilled(Login._makeRequest(mockCreds))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(request.post)
           sinon.assert.calledWithExactly(
             request.post,
@@ -223,20 +221,20 @@ describe('Login', function () {
         })
     })
 
-    describe('with a custom github URL', function () {
-      var prevURL = process.env.RUNNABLE_GITHUB_URL
+    describe('with a custom github URL', () => {
+      const prevURL = process.env.RUNNABLE_GITHUB_URL
 
-      beforeEach(function () {
+      beforeEach(() => {
         process.env.RUNNABLE_GITHUB_URL = 'http://example.com'
       })
 
-      afterEach(function () {
+      afterEach(() => {
         process.env.RUNNABLE_GITHUB_URL = prevURL
       })
 
-      it('should make a request to our custom endpoint', function () {
+      it('should make a request to our custom endpoint', () => {
         return assert.isFulfilled(Login._makeRequest(mockCreds))
-          .then(function () {
+          .then(() => {
             sinon.assert.calledOnce(request.post)
             sinon.assert.calledWithExactly(
               request.post,
@@ -248,9 +246,9 @@ describe('Login', function () {
       })
     })
 
-    it('should post with correct options by default', function () {
+    it('should post with correct options by default', () => {
       return assert.isFulfilled(Login._makeRequest(mockCreds))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(request.post)
           sinon.assert.calledWithExactly(
             request.post,
@@ -271,9 +269,9 @@ describe('Login', function () {
         })
     })
 
-    it('should provide any credentials passed to it', function () {
+    it('should provide any credentials passed to it', () => {
       return assert.isFulfilled(Login._makeRequest({ foo: 'bar' }))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(request.post)
           sinon.assert.calledWithExactly(
             request.post,
@@ -284,9 +282,9 @@ describe('Login', function () {
         })
     })
 
-    it('should add an OTP if provided', function () {
+    it('should add an OTP if provided', () => {
       return assert.isFulfilled(Login._makeRequest(mockCreds, mockToken))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(request.post)
           sinon.assert.calledWithExactly(
             request.post,
@@ -297,38 +295,38 @@ describe('Login', function () {
         })
     })
 
-    it('should resolve with the response and body', function () {
+    it('should resolve with the response and body', () => {
       return assert.isFulfilled(Login._makeRequest(mockCreds, mockToken))
-        .then(function (results) {
+        .then((results) => {
           assert.deepEqual(results, [ mockRes, mockBody ])
         })
     })
   })
 
-  describe('chooseOrg', function () {
-    var mockArgs
-    var mockUser
-    var mockOrgs = [
+  describe('chooseOrg', () => {
+    const mockArgs = {}
+    let mockUser
+    const mockOrgs = [
       { login: 'foo' },
       { login: 'bar' }
     ]
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockUser = {
         fetchGithubOrgs: sinon.stub().yieldsAsync(null, mockOrgs)
       }
-      mockArgs = { _user: mockUser }
+      Login.user = mockUser
       sinon.stub(Login, '_read').resolves('1')
       sinon.stub(Login, '_output')
     })
 
-    afterEach(function () {
+    afterEach(() => {
       Login._read.restore()
       Login._output.restore()
     })
 
-    describe('errors', function () {
-      it('should reject with any fetch orgs error', function () {
+    describe('errors', () => {
+      it('should reject with any fetch orgs error', () => {
         mockUser.fetchGithubOrgs.yieldsAsync(new Error('robot'))
         return assert.isRejected(
           Login.chooseOrg(mockArgs),
@@ -337,7 +335,7 @@ describe('Login', function () {
         )
       })
 
-      it('should reject with any read prompt error', function () {
+      it('should reject with any read prompt error', () => {
         Login._read.rejects(new Error('robot'))
         return assert.isRejected(
           Login.chooseOrg(mockArgs),
@@ -347,9 +345,9 @@ describe('Login', function () {
       })
     })
 
-    it('should fetch the github orgs', function () {
+    it('should fetch the github orgs', () => {
       return assert.isFulfilled(Login.chooseOrg(mockArgs))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(mockUser.fetchGithubOrgs)
           sinon.assert.calledWithExactly(
             mockUser.fetchGithubOrgs,
@@ -358,9 +356,9 @@ describe('Login', function () {
         })
     })
 
-    it('should prompt with the list of orgs', function () {
+    it('should prompt with the list of orgs', () => {
       return assert.isFulfilled(Login.chooseOrg(mockArgs))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(Login._read)
           sinon.assert.calledWithExactly(
             Login._read,
@@ -369,27 +367,27 @@ describe('Login', function () {
         })
     })
 
-    it('should pick an org by name', function () {
+    it('should pick an org by name', () => {
       Login._read.resolves('foo')
       return assert.isFulfilled(Login.chooseOrg(mockArgs))
-        .then(function (org) {
+        .then((org) => {
           assert.equal(org, 'foo')
         })
     })
 
-    it('should prompt twice if the first input was bad', function () {
+    it('should prompt twice if the first input was bad', () => {
       Login._read.onFirstCall().resolves('baz')
       Login._read.onSecondCall().resolves('2')
       return assert.isFulfilled(Login.chooseOrg(mockArgs))
-        .then(function (org) {
+        .then((org) => {
           assert.equal(org, 'foo')
           sinon.assert.calledTwice(Login._read)
         })
     })
 
-    it('should print the selected org', function () {
+    it('should print the selected org', () => {
       return assert.isFulfilled(Login.chooseOrg(mockArgs))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(Login._output)
           sinon.assert.calledWithExactly(
             Login._output,
@@ -399,12 +397,11 @@ describe('Login', function () {
         })
     })
 
-    it('should resolve with the name of the selected org', function () {
+    it('should resolve with the name of the selected org', () => {
       return assert.isFulfilled(Login.chooseOrg(mockArgs))
-        .then(function (org) {
+        .then((org) => {
           assert.equal(org, 'bar')
         })
     })
   })
 })
-

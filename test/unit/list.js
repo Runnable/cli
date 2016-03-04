@@ -1,20 +1,20 @@
 'use strict'
 
-var chai = require('chai')
-var sinon = require('sinon')
+const chai = require('chai')
+const sinon = require('sinon')
 
 chai.use(require('chai-as-promised'))
-var assert = chai.assert
+const assert = chai.assert
 
-var List = require('../../lib/list')
+const List = require('../../lib/list')
 
-describe('Container Methods', function () {
-  describe('listContainersForRepository', function () {
-    var mockArgs
-    var mockInstances
-    var mockUser
+describe('Container Methods', () => {
+  describe('listContainersForRepository', () => {
+    let mockArgs
+    let mockInstances
+    let mockUser
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockArgs = {
         repository: 'foo'
       }
@@ -33,14 +33,14 @@ describe('Container Methods', function () {
         _org: 'bkendall',
         fetchInstances: sinon.stub().yieldsAsync(null, mockInstances)
       }
-      mockArgs._user = mockUser
+      List.user = mockUser
     })
 
-    it('should be a function', function () {
+    it('should be a function', () => {
       assert.isFunction(List.listContainersForRepository)
     })
 
-    it('should require repository', function () {
+    it('should require repository', () => {
       mockArgs.repository = null
       return assert.isRejected(
         List.listContainersForRepository(mockArgs),
@@ -48,9 +48,9 @@ describe('Container Methods', function () {
       )
     })
 
-    it('should fetch instances', function () {
+    it('should fetch instances', () => {
       return assert.isFulfilled(List.listContainersForRepository(mockArgs))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(mockUser.fetchInstances)
           sinon.assert.calledWithExactly(
             mockUser.fetchInstances,
@@ -60,10 +60,10 @@ describe('Container Methods', function () {
         })
     })
 
-    it('should always fetch for the mockUser._org value', function () {
+    it('should always fetch for the mockUser._org value', () => {
       mockUser._org = 'foobar'
       return assert.isFulfilled(List.listContainersForRepository(mockArgs))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(mockUser.fetchInstances)
           sinon.assert.calledWithExactly(
             mockUser.fetchInstances,
@@ -73,14 +73,14 @@ describe('Container Methods', function () {
         })
     })
 
-    it('should resolve with an array', function () {
+    it('should resolve with an array', () => {
       return assert.isFulfilled(List.listContainersForRepository(mockArgs))
-        .then(function (result) {
+        .then((result) => {
           assert.isArray(result)
         })
     })
 
-    it('should filter repositories for the specified org', function () {
+    it('should filter repositories for the specified org', () => {
       mockInstances.push({
         lowerName: 'bar',
         contextVersion: { appCodeVersions: [{ lowerRepo: 'bkendall/bar', lowerBranch: 'master' }] },
@@ -88,12 +88,12 @@ describe('Container Methods', function () {
         shortHash: 'bar00'
       })
       return assert.isFulfilled(List.listContainersForRepository(mockArgs))
-        .then(function (result) {
+        .then((result) => {
           assert.lengthOf(result, 2)
         })
     })
 
-    it('should ignore non-repo containers', function () {
+    it('should ignore non-repo containers', () => {
       mockInstances.push({
         lowerName: 'redis',
         contextVersion: { appCodeVersions: [] },
@@ -101,26 +101,26 @@ describe('Container Methods', function () {
         shortHash: 'redis00'
       })
       return assert.isFulfilled(List.listContainersForRepository(mockArgs))
-        .then(function (result) {
+        .then((result) => {
           assert.lengthOf(result, 2)
         })
     })
 
-    it('should put a dash for unknown containers', function () {
+    it('should put a dash for unknown containers', () => {
       mockInstances[0].container = null
       return assert.isFulfilled(List.listContainersForRepository(mockArgs))
-        .then(function (result) {
+        .then((result) => {
           assert.equal(result[0].Status, '-')
         })
     })
   })
 
-  describe('listContainerSummary', function () {
-    var mockArgs
-    var mockInstances
-    var mockUser
+  describe('listContainerSummary', () => {
+    let mockArgs
+    let mockInstances
+    let mockUser
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockArgs = {
         repository: 'foo'
       }
@@ -144,12 +144,12 @@ describe('Container Methods', function () {
         _org: 'bkendall',
         fetchInstances: sinon.stub().yieldsAsync(null, mockInstances)
       }
-      mockArgs._user = mockUser
+      List.user = mockUser
     })
 
-    it('should fetch user instances', function () {
+    it('should fetch user instances', () => {
       return assert.isFulfilled(List.listContainerSummary(mockArgs))
-        .then(function () {
+        .then(() => {
           sinon.assert.calledOnce(mockUser.fetchInstances)
           sinon.assert.calledWithExactly(
             mockUser.fetchInstances,
@@ -159,33 +159,33 @@ describe('Container Methods', function () {
         })
     })
 
-    it('should return an object with two array keys', function () {
+    it('should return an object with two array keys', () => {
       return assert.isFulfilled(List.listContainerSummary(mockArgs))
-        .then(function (result) {
+        .then((result) => {
           assert.isObject(result)
           assert.isArray(result.repositories)
           assert.isArray(result.services)
         })
     })
 
-    it('should return a list of repositories and container counts', function () {
+    it('should return a list of repositories and container counts', () => {
       return assert.isFulfilled(List.listContainerSummary(mockArgs))
-        .then(function (result) {
+        .then((result) => {
           assert.include(result.repositories, { Repositories: 'foo', Count: '2 containers' })
         })
     })
 
-    it('should not pluralize repository counts if only one exists', function () {
+    it('should not pluralize repository counts if only one exists', () => {
       mockInstances.splice(1, 1)
       return assert.isFulfilled(List.listContainerSummary(mockArgs))
-        .then(function (result) {
+        .then((result) => {
           assert.include(result.repositories, { Repositories: 'foo', Count: '1 container' })
         })
     })
 
-    it('should return a list of services and container counts', function () {
+    it('should return a list of services and container counts', () => {
       return assert.isFulfilled(List.listContainerSummary(mockArgs))
-        .then(function (result) {
+        .then((result) => {
           assert.include(result.services, { Services: 'redis', Count: '1 container' })
         })
     })

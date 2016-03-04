@@ -1,16 +1,18 @@
 'use strict'
 
-var fs = require('fs')
-var program = require('commander')
+const fs = require('fs')
+const program = require('commander')
 
-var runnable = require('../lib/runnable')
+const Login = require('../lib/login')
 
 program
   .description('Choose a GitHub organization to use with Runnable.')
   .parse(process.argv)
 
-var options = { _user: runnable.user }
-runnable.chooseOrg(options)
-  .then(function (org) {
-    fs.writeFileSync(runnable.settingsFile, JSON.stringify({ organization: org }))
+Login.chooseOrg({})
+  .then((org) => {
+    fs.writeFileSync(
+      Login.settingsFile,
+      JSON.stringify({ organization: org })
+    )
   })

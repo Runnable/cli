@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 'use strict'
 
-var debug = require('debug')('runnable-cli:cli')
-var program = require('commander')
+const debug = require('debug')('runnable-cli:cli')
+const program = require('commander')
 
-var runnable = require('../lib/runnable')
+const Runnable = require('../lib/runnable')
 
 program
   .version(require('../package.json').version)
@@ -17,15 +17,15 @@ program
   .command('ssh', 'Starts a terminal session on the container for your local branch.')
   .command('upload', 'Upload a file to the container for your local branch.')
 
-var isLogin = process.argv.indexOf('login') !== -1
-var isHelp = process.argv.indexOf('--help') !== -1 ||
+const isLogin = process.argv.indexOf('login') !== -1
+const isHelp = process.argv.indexOf('--help') !== -1 ||
   process.argv.indexOf('help') !== -1 ||
   process.argv.length === 0
 
 if (isLogin || isHelp) {
   program.parse(process.argv)
 } else {
-  runnable.user.fetch('me', function (err) {
+  Runnable.user.fetch('me', (err) => {
     if (err) {
       console.error('Not authorized. Please login.')
       program.help()
@@ -33,10 +33,10 @@ if (isLogin || isHelp) {
       program.parse(process.argv)
 
       if (program.runningCommand) {
-        program.runningCommand.on('exit', function () {
+        program.runningCommand.on('exit', () => {
           debug('child process stopped')
         })
-        process.on('SIGINT', function () {
+        process.on('SIGINT', () => {
           debug('SIGINT received. passing to child.')
           program.runningCommand.kill('SIGINT')
         })
@@ -44,4 +44,3 @@ if (isLogin || isHelp) {
     }
   })
 }
-
