@@ -222,21 +222,19 @@ describe('Upload Methods', function () {
     var file = 'hello.js'
 
     it('should call the container.createFile method', function () {
-      upload._createFile(mockContainer, path, file, mockFileData)
-      sinon.assert.calledWith(
-        mockContainer.createFile,
-        {
-          path: path,
-          name: file,
-          isDir: false,
-          content: mockFileData.toString()
-        },
-        sinon.match.func
-      )
-    })
-
-    it('should return a promise', function () {
-      assert.isFulfilled(upload._createFile(mockContainer, path, file, mockFileData))
+      return assert.isFulfilled(upload._createFile(mockContainer, path, file, mockFileData))
+        .then(function () {
+          sinon.assert.calledWith(
+            mockContainer.createFile,
+            {
+              path: path,
+              name: file,
+              isDir: false,
+              content: mockFileData.toString()
+            },
+            sinon.match.func
+          )
+        })
     })
   })
 
