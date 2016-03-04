@@ -22,7 +22,7 @@ Feature: Upload
     And the exit status should be 0
     And the file "test.txt" should have been uploaded to "/working-dir"
 
-  Scenario: Upload a single file to the specified path
+  Scenario: Upload a single file to the specified relative path
     Given I am in the "Runnable/foo" git repository
     And I am on branch "bar"
     And I have a local file named "test.txt" containing:
@@ -37,3 +37,19 @@ Feature: Upload
       """
     And the exit status should be 0
     And the file "test.txt" should have been uploaded to "/working-dir/var/foo"
+
+  Scenario: Upload a single file to the specified absolute path
+    Given I am in the "Runnable/foo" git repository
+    And I am on branch "bar"
+    And I have a local file named "test.txt" containing:
+      """
+      some sample data
+      """
+    When I run `runnable upload test.txt /var/foo`
+    And I wait 1 second
+    Then the output should contain:
+      """
+      Uploaded file.
+      """
+    And the exit status should be 0
+    And the file "test.txt" should have been uploaded to "/var/foo"

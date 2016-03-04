@@ -41,7 +41,8 @@ describe('Upload Methods', function () {
       }
       mockUser = {}
       mockUser.newInstance = sinon.stub().returns(mockInstance)
-      sinon.stub(utils, 'getRepositoryAndInstance')
+      mockArgs = { _user: mockUser, file: 'mockFile.txt' }
+      sinon.stub(utils, 'getRepositoryAndInstance').resolves([ mockArgs, mockInstance ])
       sinon.stub(fs, 'readFile').yieldsAsync(null, mockFileData)
       sinon.stub(upload, '_createFile').resolves()
       sinon.stub(upload, '_recusivelyCreateDirectories').resolves()
@@ -54,12 +55,7 @@ describe('Upload Methods', function () {
       upload._recusivelyCreateDirectories.restore()
     })
 
-    describe('to a top level directory', function () {
-      beforeEach(function () {
-        mockArgs = { _user: mockUser, file: 'mockFile.txt' }
-        utils.getRepositoryAndInstance.resolves([ mockArgs, mockInstance ])
-      })
-
+    describe('to the current working directory', function () {
       it('should fetch the repository an instance', function () {
         return assert.isFulfilled(upload.uploadFile(mockArgs))
           .then(function () {
@@ -121,12 +117,7 @@ describe('Upload Methods', function () {
 
     describe('to a child directory', function () {
       beforeEach(function () {
-        mockArgs = {
-          _user: mockUser,
-          file: 'mockFile.txt',
-          path: '/super-path/another-path'
-        }
-        utils.getRepositoryAndInstance.resolves([ mockArgs, mockInstance ])
+        mockArgs.path = 'super-path/another-path'
       })
 
       it('should upload the file to the specified directory', function () {
@@ -136,12 +127,37 @@ describe('Upload Methods', function () {
               upload._recusivelyCreateDirectories,
               sinon.match(mockContainer),
               '/cwd',
-              '/super-path/another-path'
+              'super-path/another-path'
             )
             sinon.assert.calledWith(
               upload._createFile,
               sinon.match(mockContainer),
               '/cwd/super-path/another-path',
+              'mockFile.txt',
+              sinon.match(mockFileData)
+            )
+          })
+      })
+    })
+
+    describe('to a parent directory', function () {
+      beforeEach(function () {
+        mockArgs.path = '/super-path/another-path'
+      })
+
+      it('should upload the file to the specified directory', function () {
+        return assert.isFulfilled(upload.uploadFile(mockArgs))
+          .then(function () {
+            sinon.assert.calledWith(
+              upload._recusivelyCreateDirectories,
+              sinon.match(mockContainer),
+              '/',
+              '/super-path/another-path'
+            )
+            sinon.assert.calledWith(
+              upload._createFile,
+              sinon.match(mockContainer),
+              '/super-path/another-path',
               'mockFile.txt',
               sinon.match(mockFileData)
             )
