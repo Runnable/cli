@@ -8,6 +8,7 @@
     "runnable": "./bin/runnable.js"
   },
   "scripts": {
+    "changelog": "github-changes -o Runnable -r cli -a --only-pulls --use-commit-body --order-semver",
     "coverage": "istanbul cover node_modules/.bin/_mocha -- --recursive && npm run coverage-check",
     "coverage-check": "istanbul check-coverage && echo 'Coverage check successful!'",
     "feature": "cucumber-js",
@@ -56,6 +57,7 @@
     "cucumber": "^0.9.4",
     "docker-frame": "^1.0.0",
     "express": "^4.13.4",
+    "github-changes": "^1.0.2",
     "istanbul": "^0.4.2",
     "mocha": "^2.4.5",
     "primus": "^4.0.5",
