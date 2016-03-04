@@ -249,6 +249,18 @@ describe('Utils', function () {
           /robot/
         )
       })
+
+      it('should throw an error if there is not origin remote', function () {
+        simpleGit.prototype.getRemotes.yieldsAsync(null, [{
+          name: 'not-origin',
+          refs: { push: 'git@github.com:Runnable/foo.git' }
+        }])
+        return assert.isRejected(
+          utils.getRepositoryForCurrentDirectory(),
+          Error,
+          /remote.*repo.*origin/
+        )
+      })
     })
 
     it('should get the local remotes', function () {

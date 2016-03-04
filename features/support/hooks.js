@@ -166,6 +166,9 @@ function makeExpressApp (ctx) {
             State: {
               Status: container.status.toLowerCase(),
               Running: container.status === 'Running'
+            },
+            Config: {
+              WorkingDir: '/working-dir'
             }
           }
         }
