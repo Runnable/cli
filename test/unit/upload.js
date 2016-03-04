@@ -43,8 +43,8 @@ describe('Upload Methods', function () {
       mockUser.newInstance = sinon.stub().returns(mockInstance)
       sinon.stub(utils, 'getRepositoryAndInstance')
       sinon.stub(fs, 'readFile').yieldsAsync(null, mockFileData)
-      sinon.spy(upload, '_createFile')
-      sinon.spy(upload, '_recusivelyCreateDirectories')
+      sinon.stub(upload, '_createFile').resolves()
+      sinon.stub(upload, '_recusivelyCreateDirectories').resolves()
     })
 
     afterEach(function () {
