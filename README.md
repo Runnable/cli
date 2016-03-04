@@ -1,6 +1,9 @@
 # Runnable CLI
 
-[![Build Status](https://travis-ci.org/Runnable/cli.svg?branch=master)](https://travis-ci.org/Runnable/cli)
+[![Travis](https://img.shields.io/travis/Runnable/cli/branch.svg?style=flat-square)](https://travis-ci.org/Runnable/cli)
+[![Coveralls branch](https://img.shields.io/coveralls/Runnable/cli/master.svg?style=flat-square)](https://coveralls.io/github/Runnable/cli?branch=master)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
+[![npm (scoped)](https://img.shields.io/npm/v/@runnable/cli.svg?style=flat-square)(https://www.npmjs.com/package/@runnable/cli)
 
 A CLI for Runnable.
 

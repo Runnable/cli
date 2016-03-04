@@ -13,5 +13,7 @@ script:
 - npm run lint
 - npm run coverage
 - npm run feature
+after_script:
+- npm run coveralls
 notifications:
   email: false
