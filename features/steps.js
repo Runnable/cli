@@ -99,12 +99,11 @@ module.exports = function () {
     if (!this.fileUploads) {
       throw new Error('there was no files uploaded to the server')
     }
-    var fileWithName = find(this.fileUploads, hasProps({ name: name }))
-    if (!fileWithName) {
+    var file = find(this.fileUploads, hasProps({ name: name }))
+    if (!file) {
       throw new Error('there was no file named "' + name + '" uploaded to the server')
     }
-    var fileWithPath = find(this.fileUploads, hasProps({ path: path }))
-    if (!fileWithPath) {
+    if (file.path !== path) {
       throw new Error('there was no file with path "' + path + '" uploaded to the server')
     }
   })
