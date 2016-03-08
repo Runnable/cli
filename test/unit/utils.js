@@ -415,4 +415,55 @@ describe('Utils', function () {
       })
     })
   })
+
+  describe('socketReconnectionLogic', function () {
+    var mockSocket
+    var mockStdOut
+
+    beforeEach(function () {
+      mockSocket = new EventEmitter()
+      mockSocket.end = sinon.stub()
+
+      mockStdOut = new EventEmitter()
+      mockStdOut.end = sinon.stub()
+      mockStdOut.write = sinon.stub()
+      sinon.spy(mockSocket, 'on')
+    })
+
+    it('should attach listeners to offline and online, then call initializeStream', function () {
+      var initializeStream = sinon.spy()
+      utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
+      sinon.assert.calledTwice(mockSocket.on)
+      sinon.assert.calledWith(mockSocket.on, 'online')
+      sinon.assert.calledWith(mockSocket.on, 'offline')
+      sinon.assert.calledOnce(initializeStream)
+    })
+
+    it('should only write lost connection message once until connected', function () {
+      var initializeStream = sinon.spy()
+      utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
+      mockSocket.emit('offline')
+      sinon.assert.calledOnce(mockStdOut.write)
+      mockSocket.emit('offline')
+      sinon.assert.calledOnce(mockStdOut.write)
+      mockSocket.emit('online')
+      sinon.assert.calledTwice(mockStdOut.write)
+      mockSocket.emit('offline')
+      sinon.assert.calledThrice(mockStdOut.write)
+    })
+
+    it('should not actually attempt to reconnect unless offline occurred', function () {
+      var initializeStream = sinon.spy()
+      utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
+      sinon.assert.calledOnce(initializeStream)
+      mockSocket.emit('online')
+      sinon.assert.notCalled(mockStdOut.write)
+      sinon.assert.calledOnce(initializeStream)
+      mockSocket.emit('offline')
+      sinon.assert.calledOnce(mockStdOut.write)
+      mockSocket.emit('online')
+      sinon.assert.calledTwice(mockStdOut.write)
+      sinon.assert.calledTwice(initializeStream)
+    })
+  })
 })
