@@ -1,6 +1,5 @@
 'use strict'
 
-require('colors')
 var EventEmitter = require('events')
 if (/^v0\.1\d\.\d\d$/.test(process.version)) {
   EventEmitter = require('events').EventEmitter
@@ -451,7 +450,7 @@ describe('Utils', function () {
       var myError = new Error('Test Error')
       utils.handleError(myError)
       sinon.assert.calledOnce(console.error)
-      sinon.assert.calledWith(console.error, 'Error:'.bold.red, 'Test Error'.bold.red)
+      sinon.assert.calledWithMatch(console.error, /Error/, /Test Error/)
       done()
     })
   })
