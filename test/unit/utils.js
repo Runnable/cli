@@ -442,10 +442,12 @@ describe('Utils', function () {
       sinon.stub(console, 'error')
       done()
     })
+
     afterEach(function (done) {
       console.error.restore()
       done()
     })
+
     it('should log error messages', function (done) {
       var myError = new Error('Test Error')
       utils.handleError(myError)
