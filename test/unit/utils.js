@@ -282,7 +282,6 @@ describe('Utils', function () {
           /Current directory is/
         )
       })
-
     })
 
     it('should get the local remotes', function () {
