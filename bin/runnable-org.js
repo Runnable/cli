@@ -15,4 +15,4 @@ runnable.chooseOrg(options)
   .then(function (org) {
     fs.writeFileSync(runnable.settingsFile, JSON.stringify({ organization: org }))
   })
-  .error(utils.handleError)
+  .catch(utils.handleError)

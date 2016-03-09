@@ -20,4 +20,4 @@ runnable.uploadFile(options)
   .then(function () {
     console.log('Uploaded file.')
   })
-  .error(utils.handleError)
+  .catch(utils.handleError)

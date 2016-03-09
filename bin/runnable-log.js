@@ -25,4 +25,4 @@ options._user = runnable.user
 options.repository = program.args.shift()
 
 runnable.connectContainerLogs(options)
-  .error(utils.handleError)
+  .catch(utils.handleError)
