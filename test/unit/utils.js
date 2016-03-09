@@ -272,6 +272,7 @@ describe('Utils', function () {
           /Current directory is/
         )
       })
+
       it('should throw a custom error if there is no git repo when running revparse', function () {
         var error = new Error('fatal: Not a git repository - Yup')
         simpleGit.prototype.revparse.yieldsAsync(error)
@@ -281,6 +282,7 @@ describe('Utils', function () {
           /Current directory is/
         )
       })
+
     })
 
     it('should get the local remotes', function () {
