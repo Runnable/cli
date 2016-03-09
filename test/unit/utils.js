@@ -1,5 +1,6 @@
 'use strict'
 
+require('colors')
 var EventEmitter = require('events')
 if (/^v0\.1\d\.\d\d$/.test(process.version)) {
   EventEmitter = require('events').EventEmitter
