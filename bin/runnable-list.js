@@ -4,6 +4,7 @@ var program = require('commander')
 
 var runnable = require('../lib/runnable')
 var Table = require('../lib/table')
+var utils = require('../lib/utils')
 
 program
   .arguments('[repository]')
@@ -20,6 +21,7 @@ if (options.repository) {
     .then(function (results) {
       Table.log(results)
     })
+    .catch(utils.handleError)
 } else {
   runnable.listContainerSummary(options)
     .then(function (results) {
@@ -34,4 +36,5 @@ if (options.repository) {
       Table.log(repositories, tableFormatter)
       Table.log(services, tableFormatter)
     })
+    .catch(utils.handleError)
 }

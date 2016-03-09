@@ -2,6 +2,7 @@
 
 var fs = require('fs')
 var program = require('commander')
+var utils = require('../lib/utils')
 
 var runnable = require('../lib/runnable')
 
@@ -14,3 +15,4 @@ runnable.chooseOrg(options)
   .then(function (org) {
     fs.writeFileSync(runnable.settingsFile, JSON.stringify({ organization: org }))
   })
+  .error(utils.handleError)

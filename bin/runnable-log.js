@@ -3,6 +3,7 @@
 require('colors')
 var pick = require('101/pick')
 var program = require('commander')
+var utils = require('../lib/utils')
 
 var runnable = require('../lib/runnable')
 
@@ -24,3 +25,4 @@ options._user = runnable.user
 options.repository = program.args.shift()
 
 runnable.connectContainerLogs(options)
+  .error(utils.handleError)

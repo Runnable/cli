@@ -3,6 +3,7 @@
 var program = require('commander')
 
 var runnable = require('../lib/runnable')
+var utils = require('../lib/utils')
 
 program
   .arguments('<file> [dest]')
@@ -19,3 +20,4 @@ runnable.uploadFile(options)
   .then(function () {
     console.log('Uploaded file.')
   })
+  .error(utils.handleError)
