@@ -1,17 +1,18 @@
 'use strict'
 
-require('colors')
-var Promise = require('bluebird')
 var isEmpty = require('101/is-empty')
 var npm = require('npm')
 var program = require('commander')
+var Promise = require('bluebird')
 var semver = require('semver')
+
+var packageData = require('../package.json')
+var utils = require('../lib/utils')
 
 program
   .description('Prints current version and checks for updates.')
   .parse(process.argv)
 
-var packageData = require('../package.json')
 var currentVersion = packageData.version
 var name = packageData.name
 
@@ -39,3 +40,4 @@ Promise.fromCallback(npm.load.bind(npm, npmConfig))
       console.log('You are up to date!'.green.bold)
     }
   })
+  .catch(utils.handleError)
