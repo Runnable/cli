@@ -3,6 +3,7 @@
 var program = require('commander')
 
 var runnable = require('../lib/runnable')
+var utils = require('../lib/utils')
 
 program
   .arguments('[repository]')
@@ -14,3 +15,4 @@ var options = {
   repository: program.args.shift()
 }
 runnable.connectTerminalStream(options)
+  .catch(utils.handleError)

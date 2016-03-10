@@ -261,6 +261,26 @@ describe('Utils', function () {
           /remote.*repo.*origin/
         )
       })
+
+      it('should throw a custom error if there is no git repo when fetching getRemotes', function () {
+        var error = new Error('fatal: Not a git repository - Yup')
+        simpleGit.prototype.getRemotes.yieldsAsync(error)
+        return assert.isRejected(
+          utils.getRepositoryForCurrentDirectory(),
+          Error,
+          /Current directory is/
+        )
+      })
+
+      it('should throw a custom error if there is no git repo when running revparse', function () {
+        var error = new Error('fatal: Not a git repository - Yup')
+        simpleGit.prototype.revparse.yieldsAsync(error)
+        return assert.isRejected(
+          utils.getRepositoryForCurrentDirectory(),
+          Error,
+          /Current directory is/
+        )
+      })
     })
 
     it('should get the local remotes', function () {
@@ -413,6 +433,26 @@ describe('Utils', function () {
             assert.equal(instance, mockInstanceOne)
           })
       })
+    })
+  })
+
+  describe('handleError', function () {
+    beforeEach(function (done) {
+      sinon.stub(console, 'error')
+      done()
+    })
+
+    afterEach(function (done) {
+      console.error.restore()
+      done()
+    })
+
+    it('should log error messages', function (done) {
+      var myError = new Error('Test Error')
+      utils.handleError(myError)
+      sinon.assert.calledOnce(console.error)
+      sinon.assert.calledWithMatch(console.error, /Error/, /Test Error/)
+      done()
     })
   })
 })
