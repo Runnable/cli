@@ -3,6 +3,7 @@
 const program = require('commander')
 
 const Upload = require('../lib/upload')
+const Utils = require('../lib/utils')
 
 program
   .arguments('<file> [dest]')
@@ -17,6 +18,7 @@ const options = {
   path
 }
 Upload.uploadFile(options)
-  .then(function () {
+  .then(() => {
     console.log('Uploaded file.')
   })
+  .catch(Utils.handleError)

@@ -4,6 +4,7 @@ const fs = require('fs')
 const program = require('commander')
 
 const Login = require('../lib/login')
+const Utils = require('../lib/utils')
 
 program
   .description('Authenticate with the Runnable CLI.')
@@ -19,3 +20,4 @@ Login.login({})
         )
       })
   })
+  .catch(Utils.handleError)

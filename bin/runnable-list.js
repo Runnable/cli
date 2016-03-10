@@ -4,6 +4,7 @@ const program = require('commander')
 
 const List = require('../lib/list')
 const Table = require('../lib/table')
+const Utils = require('../lib/utils')
 
 program
   .arguments('[repository]')
@@ -19,6 +20,7 @@ if (options.repository) {
     .then((results) => {
       Table.log(results)
     })
+    .catch(Utils.handleError)
 } else {
   List.listContainerSummary(options)
     .then((results) => {
@@ -31,4 +33,5 @@ if (options.repository) {
       Table.log(results.repositories, tableFormatter)
       Table.log(results.services, tableFormatter)
     })
+    .catch(Utils.handleError)
 }

@@ -248,7 +248,7 @@ describe('Utils', () => {
         )
       })
 
-      it('should throw an error if there is not "origin" remote', function () {
+      it('should throw an error if there is not "origin" remote', () => {
         simpleGit.prototype.getRemotes.yieldsAsync(null, [{
           name: 'not-origin',
           refs: { push: 'git@github.com:Runnable/foo.git' }
@@ -257,6 +257,26 @@ describe('Utils', () => {
           Utils.getRepositoryForCurrentDirectory(),
           Error,
           /no remote repo.+origin/i
+        )
+      })
+
+      it('should throw a custom error if there is no git repo when fetching getRemotes', () => {
+        const error = new Error('fatal: Not a git repository - Yup')
+        simpleGit.prototype.getRemotes.yieldsAsync(error)
+        return assert.isRejected(
+          Utils.getRepositoryForCurrentDirectory(),
+          Error,
+          /Current directory is/
+        )
+      })
+
+      it('should throw a custom error if there is no git repo when running revparse', () => {
+        const error = new Error('fatal: Not a git repository - Yup')
+        simpleGit.prototype.revparse.yieldsAsync(error)
+        return assert.isRejected(
+          Utils.getRepositoryForCurrentDirectory(),
+          Error,
+          /Current directory is/
         )
       })
     })
@@ -410,6 +430,74 @@ describe('Utils', () => {
             assert.equal(instance, mockInstanceOne)
           })
       })
+    })
+  })
+
+  describe('socketReconnectionLogic', () => {
+    let mockSocket
+    let mockStdOut
+
+    beforeEach(() => {
+      mockSocket = new EventEmitter()
+      mockSocket.end = sinon.stub()
+
+      mockStdOut = new EventEmitter()
+      mockStdOut.end = sinon.stub()
+      mockStdOut.write = sinon.stub()
+      sinon.spy(mockSocket, 'on')
+    })
+
+    it('should attach listeners to offline and online, then call initializeStream', () => {
+      const initializeStream = sinon.spy()
+      Utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
+      sinon.assert.calledTwice(mockSocket.on)
+      sinon.assert.calledWith(mockSocket.on, 'online')
+      sinon.assert.calledWith(mockSocket.on, 'offline')
+      sinon.assert.calledOnce(initializeStream)
+    })
+
+    it('should only write lost connection message once until connected', () => {
+      const initializeStream = sinon.spy()
+      Utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
+      mockSocket.emit('offline')
+      sinon.assert.calledOnce(mockStdOut.write)
+      mockSocket.emit('offline')
+      sinon.assert.calledOnce(mockStdOut.write)
+      mockSocket.emit('online')
+      sinon.assert.calledTwice(mockStdOut.write)
+      mockSocket.emit('offline')
+      sinon.assert.calledThrice(mockStdOut.write)
+    })
+
+    it('should not actually attempt to reconnect unless offline occurred', () => {
+      const initializeStream = sinon.spy()
+      Utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
+      sinon.assert.calledOnce(initializeStream)
+      mockSocket.emit('online')
+      sinon.assert.notCalled(mockStdOut.write)
+      sinon.assert.calledOnce(initializeStream)
+      mockSocket.emit('offline')
+      sinon.assert.calledOnce(mockStdOut.write)
+      mockSocket.emit('online')
+      sinon.assert.calledTwice(mockStdOut.write)
+      sinon.assert.calledTwice(initializeStream)
+    })
+  })
+
+  describe('handleError', () => {
+    beforeEach(() => {
+      sinon.stub(console, 'error')
+    })
+
+    afterEach(() => {
+      console.error.restore()
+    })
+
+    it('should log error messages', () => {
+      const myError = new Error('Test Error')
+      Utils.handleError(myError)
+      sinon.assert.calledOnce(console.error)
+      sinon.assert.calledWithMatch(console.error, /Error/, /Test Error/)
     })
   })
 })

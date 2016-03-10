@@ -15,6 +15,13 @@ var spawn = require('child_process').spawn
 var executablePath = path.join(__dirname, '..', 'bin', 'runnable.js')
 
 module.exports = function () {
+  this.Given(/^the latest version is (the same as|newer than) mine$/, function (direction) {
+    this.latestModuleVersion = require('../package.json').version
+    if (direction === 'newer than') {
+      this.latestModuleVersion = '1' + this.latestModuleVersion
+    }
+  })
+
   this.Given(/^I am using the "([^"]*)" organization$/, function (org) {
     var settingsFile = path.resolve(this.environment.RUNNABLE_STORE, 'settings.json')
     return createDirectory(this, '.runnable')

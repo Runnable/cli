@@ -3,6 +3,7 @@
 const program = require('commander')
 
 const SSH = require('../lib/ssh')
+const Utils = require('../lib/utils')
 
 program
   .arguments('[repository]')
@@ -13,3 +14,4 @@ const options = {
   repository: program.args.shift()
 }
 SSH.connectTerminalStream(options)
+  .catch(Utils.handleError)

@@ -1,10 +1,10 @@
 'use strict'
 
-require('colors')
 const pick = require('101/pick')
 const program = require('commander')
 
 const Logs = require('../lib/logs')
+const Utils = require('../lib/utils')
 
 program
   .arguments('[repository]')
@@ -23,3 +23,4 @@ const options = pick(program, [ 'build', 'cmd' ])
 options.repository = program.args.shift()
 
 Logs.connectContainerLogs(options)
+  .catch(Utils.handleError)

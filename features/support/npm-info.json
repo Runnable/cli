@@ -1,0 +1,151 @@
+{
+  "_id": "@runnable\/cli",
+  "_rev": "7-69d2719a8cb7fbdb5137cc13131a27c3",
+  "name": "@runnable\/cli",
+  "description": "Runnable CLI",
+  "dist-tags": {
+    "latest": "2.1.0"
+  },
+  "versions": {
+    "0.0.0": {
+      "name": "@runnable\/cli",
+      "version": "2.1.0",
+      "description": "Runnable CLI",
+      "homepage": "https:\/\/runnable.io",
+      "repository": {
+        "type": "git",
+        "url": "git+https:\/\/github.com\/Runnable\/cli.git"
+      },
+      "bin": {
+        "runnable": ".\/bin\/runnable.js"
+      },
+      "scripts": {
+        "coverage": "istanbul cover node_modules\/.bin\/_mocha -- --recursive && npm run coverage-check",
+        "coverage-check": "istanbul check-coverage && echo 'Coverage check successful!'",
+        "feature": "cucumber-js",
+        "format": "standard-format --write --verbose",
+        "test": "npm run lint && npm run unit && npm run feature",
+        "lint": "standard --verbose",
+        "unit": "mocha --recursive"
+      },
+      "author": {
+        "name": "Bryan Kendall",
+        "email": "bryan@runnable.com"
+      },
+      "license": "MIT",
+      "standard": {
+        "globals": [
+          "describe",
+          "before",
+          "beforeEach",
+          "after",
+          "afterEach",
+          "it"
+        ]
+      },
+      "dependencies": {
+        "101": "^1.3.1",
+        "@runnable\/api-client": "^5.0.0",
+        "bluebird": "^3.3.1",
+        "colors": "^1.0.3",
+        "commander": "^2.7.1",
+        "debug": "^2.1.1",
+        "docker-stream-cleanser": "^0.3.0",
+        "easy-table": "^1.0.0",
+        "inflect": "^0.3.0",
+        "keypather": "^1.8.1",
+        "parse-github-url": "^0.3.0",
+        "read": "^1.0.7",
+        "request": "^2.69.0",
+        "simple-git": "^1.24.0",
+        "substream": "^0.2.0",
+        "tough-cookie-filestore": "0.0.1",
+        "uuid": "^2.0.1",
+        "ws": "^1.0.1"
+      },
+      "devDependencies": {
+        "basic-auth": "^1.0.3",
+        "body-parser": "^1.15.0",
+        "chai": "^3.5.0",
+        "chai-as-promised": "^5.2.0",
+        "cucumber": "^0.9.4",
+        "docker-frame": "^1.0.0",
+        "express": "^4.13.4",
+        "istanbul": "^0.4.2",
+        "mocha": "^2.4.5",
+        "primus": "^4.0.5",
+        "sinon": "^1.17.3",
+        "sinon-as-promised": "^4.0.0",
+        "standard": "^6.0.5",
+        "standard-format": "^2.1.0"
+      },
+      "gitHead": "ff7fa6ce58c591b26a9a22a64e196390479a7e29",
+      "bugs": {
+        "url": "https:\/\/github.com\/Runnable\/cli\/issues"
+      },
+      "_id": "@runnable\/cli@2.1.0",
+      "_shasum": "489874e4921d54a5a57a3ee6c8e2e070fae33770",
+      "_from": ".",
+      "_npmVersion": "2.14.12",
+      "_nodeVersion": "4.3.1",
+      "_npmUser": {
+        "name": "bkendall",
+        "email": "bryan@bryankendall.com"
+      },
+      "dist": {
+        "shasum": "489874e4921d54a5a57a3ee6c8e2e070fae33770",
+        "tarball": "http:\/\/registry.npmjs.org\/@runnable\/cli\/-\/cli-2.1.0.tgz"
+      },
+      "maintainers": [
+        {
+          "name": "bkendall",
+          "email": "bryan@bryankendall.com"
+        },
+        {
+          "name": "runnabear",
+          "email": "accounts@runnable.com"
+        }
+      ],
+      "_npmOperationalInternal": {
+        "host": "packages-5-east.internal.npmjs.com",
+        "tmp": "tmp\/cli-2.1.0.tgz_1456359192515_0.8179940707050264"
+      },
+      "directories": {
+
+      }
+    }
+  },
+  "readme": "# Runnable CLI\n\n[![Build Status](https:\/\/travis-ci.org\/Runnable\/cli.svg?branch=master)](https:\/\/travis-ci.org\/Runnable\/cli)\n\nA CLI for Runnable\n\n## Requirements\n\nTo use the CLI, you need:\n\n* nodejs v4.2.x or above (v0.10.x is supported, but will be deprecated soon)\n* npm v2.7 or above\n\n## Installation\n\nTo install the CLI, run `npm install -g @runnable\/cli`.\n\n## Commands\n\n### runnable login\n\nUse this command to authenticate your CLI session in your terminal. You will also be prompted to choose a Github organization. You can change the Github organization at any time using `runnable org`.\n\n### runnable org\n\nUse this command to change the active Github organization in your session.\n\n### runnable ssh [name]\n\nUse this command to spawn a shell session into the container. You can specify the name of the container you are trying to reach in the following format: <reponame>\/<branchname>.\n\nIf you don't provide a name, the cli will automatically map the command you are trying to run to the repo\/branch your local directory is on.\n\n### runnable logs [name] [-b|-c]\n\nUse this command to view the logs of a container. You can specify the name of the container you are trying to reach in the following format: _reponame_\/_branchname_. \n\nIf you don't provide a name, the cli will automatically map the command you are trying to run to the repo\/branch your local directory is on.\n\nYou can choose to view the build logs by adding the \"-b\" argument to the command. Conversely, you can view the CMD logs by adding the \"-c\" argument to the command. If you don't specify the aforementioned commands, the command will just follow the real time logs of the Container.\n\n### runnable list [reponame]\n\nUse this command to get an overview of all the different containers you have under the active Github organization.\n\nYou can drill down and list all the branches of a repository by specifying a repository name.\n\n### runnable upload <file>\n\nUse this command to upload a file to the repository. The file will be placed on the root of the repository folder on the container. \n",
+  "maintainers": [
+    {
+      "name": "bkendall",
+      "email": "bryan@bryankendall.com"
+    },
+    {
+      "name": "runnabear",
+      "email": "accounts@runnable.com"
+    }
+  ],
+  "time": {
+    "modified": "2016-02-25T00:13:15.007Z",
+    "created": "2016-02-20T01:27:20.281Z",
+    "2.1.0": "2016-02-25T00:13:15.007Z"
+  },
+  "homepage": "https:\/\/runnable.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https:\/\/github.com\/Runnable\/cli.git"
+  },
+  "author": {
+    "name": "Bryan Kendall",
+    "email": "bryan@runnable.com"
+  },
+  "bugs": {
+    "url": "https:\/\/github.com\/Runnable\/cli\/issues"
+  },
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "_attachments": {
+
+  }
+}
