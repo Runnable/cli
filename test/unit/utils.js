@@ -435,6 +435,7 @@ describe('Utils', function () {
       })
     })
   })
+
   describe('handleError', function () {
     beforeEach(function (done) {
       sinon.stub(console, 'error')
