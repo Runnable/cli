@@ -7,15 +7,19 @@
   "bin": {
     "runnable": "./bin/runnable.js"
   },
+  "engines": {
+    "node": ">=4 <5"
+  },
   "scripts": {
     "changelog": "github-changes -o Runnable -r cli -a --only-pulls --use-commit-body --order-semver",
     "coverage": "istanbul cover node_modules/.bin/_mocha -- --recursive && npm run coverage-check",
     "coverage-check": "istanbul check-coverage && echo 'Coverage check successful!'",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "feature": "cucumber-js",
     "format": "standard-format --write --verbose",
     "test": "npm run lint && npm run unit && npm run feature",
     "lint": "standard --verbose",
-    "unit": "mocha --recursive"
+    "unit": "mocha --bail --recursive"
   },
   "author": "Bryan Kendall <bryan@runnable.com>",
   "license": "MIT",
@@ -56,6 +60,7 @@
     "body-parser": "^1.15.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
+    "coveralls": "^2.11.8",
     "cucumber": "^0.9.4",
     "docker-frame": "^1.0.0",
     "express": "^4.13.4",

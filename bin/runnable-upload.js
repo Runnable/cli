@@ -1,23 +1,24 @@
 'use strict'
 
-var program = require('commander')
+const program = require('commander')
 
-var runnable = require('../lib/runnable')
-var utils = require('../lib/utils')
+const Upload = require('../lib/upload')
+const Utils = require('../lib/utils')
 
 program
   .arguments('<file> [dest]')
   .description('Upload a file to the container for your local branch.')
   .parse(process.argv)
 
-var options = {
-  _user: runnable.user,
-  file: program.args.shift(),
-  path: program.args.shift()
-}
+const file = program.args.shift()
+const path = program.args.shift()
 
-runnable.uploadFile(options)
-  .then(function () {
+const options = {
+  file,
+  path
+}
+Upload.uploadFile(options)
+  .then(() => {
     console.log('Uploaded file.')
   })
-  .catch(utils.handleError)
+  .catch(Utils.handleError)

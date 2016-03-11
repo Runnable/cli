@@ -1,25 +1,24 @@
 'use strict'
 
-var Primus = require('primus')
-var Promise = require('bluebird')
-var basicAuth = require('basic-auth')
-var debug = require('debug')('runnable-cli:features:hooks')
-var dockerFrame = require('docker-frame')
-var express = require('express')
-var find = require('101/find')
-var fs = Promise.promisifyAll(require('fs'))
-var hasProps = require('101/has-properties')
-var http = require('http')
-var keypather = require('keypather')()
-var path = require('path')
-var pluck = require('101/pluck')
-var substream = require('substream')
-var uuid = require('uuid')
+const basicAuth = require('basic-auth')
+const debug = require('debug')('runnable-cli:features:hooks')
+const dockerFrame = require('docker-frame')
+const express = require('express')
+const find = require('101/find')
+const hasProps = require('101/has-properties')
+const http = require('http')
+const keypather = require('keypather')()
+const path = require('path')
+const pluck = require('101/pluck')
+const Primus = require('primus')
+const Promise = require('bluebird')
+const substream = require('substream')
+const uuid = require('uuid')
+
+const fs = Promise.promisifyAll(require('fs'))
 
 module.exports = function () {
   this.Before(function () {
-    var self = this
-
     // environment stuff
     this.environment = {
       RUNNABLE_HOST: 'http://localhost:8080',
@@ -37,33 +36,31 @@ module.exports = function () {
     // application server mock
     this.app = makeExpressApp(this)
     this._server = http.createServer(this.app)
-    var primusOpts = {
+    const primusOpts = {
       port: 8080,
       transformer: 'websockets',
       parser: 'JSON'
     }
-    var primus = new Primus(this._server, primusOpts)
+    const primus = new Primus(this._server, primusOpts)
     primus.use('substream', substream)
-    primus.on('connection', function (client) {
-      handlePrimusConnection(self, client)
+    primus.on('connection', (client) => {
+      handlePrimusConnection(this, client)
     })
 
-    return Promise.fromCallback(function (callback) {
-      self._server.listen(8080, callback)
+    return Promise.fromCallback((callback) => {
+      this._server.listen(8080, callback)
     })
-      .then(function () {
-        return fs.mkdirAsync(self._fs.baseDir)
+      .then(() => {
+        return fs.mkdirAsync(this._fs.baseDir)
       })
   })
 
   this.After(function () {
-    var self = this
-
     return Promise.resolve()
-      .then(function () {
-        if (self._server) {
-          return Promise.fromCallback(function (callback) {
-            self._server.close(callback)
+      .then(() => {
+        if (this._server) {
+          return Promise.fromCallback((callback) => {
+            this._server.close(callback)
           })
         }
       })
@@ -71,18 +68,18 @@ module.exports = function () {
 }
 
 function handlePrimusConnection (ctx, client) {
-  client.on('data', function (message) {
-    var shortHash
-    var container
-    var clientSubstream
+  client.on('data', (message) => {
+    let shortHash
+    let container
+    let clientSubstream
     if (message.event === 'log-stream') {
-      var containerId = message.data.containerId
+      const containerId = message.data.containerId
       shortHash = containerId.replace('dc:', '')
       container = find(ctx.containers, hasProps({ shortHash: shortHash }))
       if (!container) { throw new Error('primus: could not find container') }
       if (!container.logs) { throw new Error('primus: no logs were defined for the container') }
       clientSubstream = client.substream(containerId)
-      container.logs.split('\n').forEach(function (line) {
+      container.logs.split('\n').forEach((line) => {
         line = dockerFrame(1, line)
         line = line.toString('hex')
         clientSubstream.write(line)
@@ -93,7 +90,7 @@ function handlePrimusConnection (ctx, client) {
       if (!container) { throw new Error('primus: could not find container') }
       if (!container.buildLogs) { throw new Error('primus: no build logs were defined for the container') }
       clientSubstream = client.substream(message.data.streamId)
-      container.buildLogs.split('\n').forEach(function (line) {
+      container.buildLogs.split('\n').forEach((line) => {
         clientSubstream.write({ type: 'log', content: line })
       })
       clientSubstream.end()
@@ -103,7 +100,7 @@ function handlePrimusConnection (ctx, client) {
       if (!container) { throw new Error('primus: could not find container') }
       if (!container.terminalLogs) { throw new Error('primus: no terminal logs were defined for the container') }
       clientSubstream = client.substream(message.data.terminalStreamId)
-      container.terminalLogs.split('\n').forEach(function (line) {
+      container.terminalLogs.split('\n').forEach((line) => {
         clientSubstream.write(line + '\n')
       })
     }
@@ -111,11 +108,11 @@ function handlePrimusConnection (ctx, client) {
 }
 
 function makeExpressApp (ctx) {
-  var app = express()
+  const app = express()
 
   app.post('/instances/:instance/containers/:container/files/',
     require('body-parser').json(),
-    function (req, res, next) {
+    (req, res, next) => {
       if (!ctx.fileUploads) { ctx.fileUploads = [] }
       ctx.fileUploads.push(req.body)
       res.status(201)
@@ -123,7 +120,7 @@ function makeExpressApp (ctx) {
     }
   )
 
-  app.get('/users/me', function (req, res) {
+  app.get('/users/me', (req, res) => {
     res.json({
       accounts: {
         github: {
@@ -133,15 +130,15 @@ function makeExpressApp (ctx) {
     })
   })
 
-  app.get('/instances', function (req, res) {
-    var instances = ctx.containers.map(function (container) {
-      var instanceId = uuid()
-      var contextId = uuid()
-      var contextVersionId = container.shortHash + ':' + uuid()
-      var appCodeVersionId = uuid()
+  app.get('/instances', (req, res) => {
+    let instances = ctx.containers.map((container) => {
+      const instanceId = uuid()
+      const contextId = uuid()
+      const contextVersionId = container.shortHash + ':' + uuid()
+      const appCodeVersionId = uuid()
 
-      var fullRepo = container.org + '/' + container.repo
-      var appCodeVersions = []
+      const fullRepo = container.org + '/' + container.repo
+      const appCodeVersions = []
       if (container.org && container.repo) {
         appCodeVersions.push({
           _id: appCodeVersionId,
@@ -175,16 +172,16 @@ function makeExpressApp (ctx) {
         }
       }
     })
-    var repo = keypather.get(req.query, '["contextVersion.appCodeVersions.repo"].toLowerCase()')
+    const repo = keypather.get(req.query, '["contextVersion.appCodeVersions.repo"].toLowerCase()')
     debug('check this repo out: ' + repo)
     if (repo) {
-      instances = instances.filter(function (i) {
+      instances = instances.filter((i) => {
         return keypather.get(i, 'contextVersion.appCodeVersions[0].lowerRepo') === repo
       })
     }
-    var name = keypather.get(req.query, 'name.toLowerCase()')
+    const name = keypather.get(req.query, 'name.toLowerCase()')
     if (name) {
-      instances = instances.filter(function (i) {
+      instances = instances.filter((i) => {
         return i.lowerName === name
       })
     }
@@ -192,19 +189,19 @@ function makeExpressApp (ctx) {
     res.json(instances)
   })
 
-  app.post('/auth/github/token', function (req, res, next) {
+  app.post('/auth/github/token', (req, res, next) => {
     res.status(200).end()
   })
 
-  app.get('/github/user/orgs', function (req, res, next) {
-    res.json(ctx.organizations.map(function (o) { return { login: o } }))
+  app.get('/github/user/orgs', (req, res, next) => {
+    res.json(ctx.organizations.map((o) => { return { login: o } }))
   })
 
   app.post('/authorizations',
     require('body-parser').json(),
-    function (req, res, next) {
+    (req, res, next) => {
       debug('here is an authorizations request')
-      var user = basicAuth(req)
+      const user = basicAuth(req)
       debug('authorization is as follows', user.name, user.pass)
       if (!user) {
         return res.status(403).end()
@@ -215,9 +212,9 @@ function makeExpressApp (ctx) {
       req._user = user.name
       next()
     },
-    function (req, res, next) {
+    (req, res, next) => {
       if (ctx.requiredOTP) {
-        var code = req.headers['x-github-otp']
+        const code = req.headers['x-github-otp']
         if (!code) {
           res.set('x-github-otp', 'required')
           debug('request failed. need otp')
@@ -230,7 +227,7 @@ function makeExpressApp (ctx) {
       }
       next()
     },
-    function (req, res) {
+    (req, res) => {
       debug('request succeeded')
       ctx.lastGeneratedToken = {}
       ctx.lastGeneratedToken[req._user] = {
@@ -256,16 +253,16 @@ function makeExpressApp (ctx) {
     }
   )
 
-  app.get('/docks', function (req, res) {
+  app.get('/docks', (req, res) => {
     res.json(ctx.availableDocks)
   })
 
   app.get('/npm/@runnable%2fcli', function (req, res) {
-    var infoFile = path.resolve(__dirname, 'npm-info.json')
+    const infoFile = path.resolve(__dirname, 'npm-info.json')
     if (require.cache[infoFile]) {
       delete require.cache[infoFile]
     }
-    var data = require('./npm-info.json')
+    const data = require('./npm-info.json')
     data['dist-tags'].latest = ctx.latestModuleVersion
     data.versions[ctx.latestModuleVersion] = data.versions['0.0.0']
     data.versions[ctx.latestModuleVersion].version = ctx.latestModuleVersion

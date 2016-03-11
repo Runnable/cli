@@ -1,37 +1,37 @@
 'use strict'
 
-var isEmpty = require('101/is-empty')
-var npm = require('npm')
-var program = require('commander')
-var Promise = require('bluebird')
-var semver = require('semver')
+const isEmpty = require('101/is-empty')
+const npm = require('npm')
+const program = require('commander')
+const Promise = require('bluebird')
+const semver = require('semver')
 
-var packageData = require('../package.json')
-var utils = require('../lib/utils')
+const packageData = require('../package.json')
+const Utils = require('../lib/utils')
 
 program
   .description('Prints current version and checks for updates.')
   .parse(process.argv)
 
-var currentVersion = packageData.version
-var name = packageData.name
+const currentVersion = packageData.version
+const name = packageData.name
 
 console.log('Current version:'.bold, semver.clean(currentVersion))
-var npmConfig = {
+const npmConfig = {
   registry: process.env.RUNNABLE_NPM_REGISTRY || 'https://registry.npmjs.org/',
   'cache-min': 0
 }
 Promise.fromCallback(npm.load.bind(npm, npmConfig))
-  .then(function () {
+  .then(() => {
     return Promise.fromCallback(function (callback) {
       npm.commands['view']([name, 'version'], true, callback)
     })
   })
-  .then(function (versionObject) {
+  .then((versionObject) => {
     if (!versionObject || isEmpty(versionObject)) {
       throw new Error('Could not determine remote available version.')
     }
-    var remoteVersion = Object.keys(versionObject)[0]
+    const remoteVersion = Object.keys(versionObject)[0]
     console.log('Remote version (latest):'.bold, semver.clean(remoteVersion))
     if (semver.lt(currentVersion, remoteVersion)) {
       console.log('You are out of date!'.red.bold)
@@ -40,4 +40,4 @@ Promise.fromCallback(npm.load.bind(npm, npmConfig))
       console.log('You are up to date!'.green.bold)
     }
   })
-  .catch(utils.handleError)
+  .catch(Utils.handleError)

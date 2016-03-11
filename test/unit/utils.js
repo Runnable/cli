@@ -1,66 +1,63 @@
 'use strict'
 
-var EventEmitter = require('events')
-if (/^v0\.1\d\.\d\d$/.test(process.version)) {
-  EventEmitter = require('events').EventEmitter
-}
-var chai = require('chai')
-var simpleGit = require('simple-git/src/git')
-var sinon = require('sinon')
+const EventEmitter = require('events')
+const chai = require('chai')
+const simpleGit = require('simple-git/src/git')
+const sinon = require('sinon')
 
 require('sinon-as-promised')(require('bluebird'))
 chai.use(require('chai-as-promised'))
-var assert = chai.assert
+const assert = chai.assert
 
-var utils = require('../../lib/utils')
+const Utils = require('../../lib/utils')
 
-describe('Utils', function () {
-  describe('getRepositoryAndInstance', function () {
-    var mockArgs
-    var mockInstance = { _id: 'mockInstanceId' }
+describe('Utils', () => {
+  describe('getRepositoryAndInstance', () => {
+    let mockArgs
+    const mockInstance = { _id: 'mockInstanceId' }
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockArgs = {}
-      sinon.stub(utils, 'getRepositoryForCurrentDirectory').resolves('mockRepository/branch')
-      sinon.stub(utils, 'fetchInstanceForRepository').resolves(mockInstance)
+      sinon.stub(Utils, 'getRepositoryForCurrentDirectory').resolves('mockRepository/branch')
+      sinon.stub(Utils, 'fetchInstanceForRepository').resolves(mockInstance)
     })
 
-    afterEach(function () {
-      utils.getRepositoryForCurrentDirectory.restore()
-      utils.fetchInstanceForRepository.restore()
+    afterEach(() => {
+      Utils.getRepositoryForCurrentDirectory.restore()
+      Utils.fetchInstanceForRepository.restore()
     })
 
-    describe('with no repository', function () {
-      it('should get the repository from the current directory', function () {
-        return assert.isFulfilled(utils.getRepositoryAndInstance(mockArgs))
-          .then(function () {
-            sinon.assert.calledOnce(utils.getRepositoryForCurrentDirectory)
+    describe('with no repository', () => {
+      it('should get the repository from the current directory', () => {
+        return assert.isFulfilled(Utils.getRepositoryAndInstance(mockArgs))
+          .then(() => {
+            sinon.assert.calledOnce(Utils.getRepositoryForCurrentDirectory)
           })
       })
 
-      it('should fetch the instance for the current directory', function () {
-        return assert.isFulfilled(utils.getRepositoryAndInstance(mockArgs))
-          .then(function () {
-            sinon.assert.calledOnce(utils.fetchInstanceForRepository)
+      it('should fetch the instance for the current directory', () => {
+        return assert.isFulfilled(Utils.getRepositoryAndInstance(mockArgs))
+          .then(() => {
+            sinon.assert.calledOnce(Utils.fetchInstanceForRepository)
             sinon.assert.calledWithExactly(
-              utils.fetchInstanceForRepository,
+              Utils.fetchInstanceForRepository,
               { repository: 'mockRepository/branch' }
             )
           })
       })
 
-      it('should throw if it cannot find the instance', function () {
-        utils.fetchInstanceForRepository.resolves()
+      it('should throw if it cannot find the instance', () => {
+        Utils.fetchInstanceForRepository.resolves()
         return assert.isRejected(
-          utils.getRepositoryAndInstance(mockArgs),
+          Utils.getRepositoryAndInstance(mockArgs),
           Error,
           /Could not find Container./
         )
       })
 
-      it('should resolve the new args and instance', function () {
-        return assert.isFulfilled(utils.getRepositoryAndInstance(mockArgs))
-          .then(function (results) {
+      it('should resolve the new args and instance', () => {
+        return assert.isFulfilled(Utils.getRepositoryAndInstance(mockArgs))
+          .then((results) => {
             assert.deepEqual(
               results,
               [ { repository: 'mockRepository/branch' }, mockInstance ]
@@ -69,41 +66,41 @@ describe('Utils', function () {
       })
     })
 
-    describe('with repository', function () {
-      beforeEach(function () {
+    describe('with repository', () => {
+      beforeEach(() => {
         mockArgs.repository = 'mockRepository/other-branch'
       })
 
-      it('should not get the current repository', function () {
-        return assert.isFulfilled(utils.getRepositoryAndInstance(mockArgs))
-          .then(function () {
-            sinon.assert.notCalled(utils.getRepositoryForCurrentDirectory)
+      it('should not get the current repository', () => {
+        return assert.isFulfilled(Utils.getRepositoryAndInstance(mockArgs))
+          .then(() => {
+            sinon.assert.notCalled(Utils.getRepositoryForCurrentDirectory)
           })
       })
 
-      it('should fetch the instance for the given repository', function () {
-        return assert.isFulfilled(utils.getRepositoryAndInstance(mockArgs))
-          .then(function () {
-            sinon.assert.calledOnce(utils.fetchInstanceForRepository)
+      it('should fetch the instance for the given repository', () => {
+        return assert.isFulfilled(Utils.getRepositoryAndInstance(mockArgs))
+          .then(() => {
+            sinon.assert.calledOnce(Utils.fetchInstanceForRepository)
             sinon.assert.calledWithExactly(
-              utils.fetchInstanceForRepository,
+              Utils.fetchInstanceForRepository,
               { repository: 'mockRepository/other-branch' }
             )
           })
       })
 
-      it('should throw if it cannot find the instance', function () {
-        utils.fetchInstanceForRepository.resolves()
+      it('should throw if it cannot find the instance', () => {
+        Utils.fetchInstanceForRepository.resolves()
         return assert.isRejected(
-          utils.getRepositoryAndInstance(mockArgs),
+          Utils.getRepositoryAndInstance(mockArgs),
           Error,
           /Could not find Container./
         )
       })
 
-      it('should resolve the new args and instance', function () {
-        return assert.isFulfilled(utils.getRepositoryAndInstance(mockArgs))
-          .then(function (results) {
+      it('should resolve the new args and instance', () => {
+        return assert.isFulfilled(Utils.getRepositoryAndInstance(mockArgs))
+          .then((results) => {
             assert.deepEqual(
               results,
               [ { repository: 'mockRepository/other-branch' }, mockInstance ]
@@ -113,12 +110,12 @@ describe('Utils', function () {
     })
   })
 
-  describe('createSocket', function () {
-    var mockArgs
-    var mockUser
-    var mockSocket
+  describe('createSocket', () => {
+    let mockArgs
+    let mockUser
+    let mockSocket
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockSocket = new EventEmitter()
       mockSocket.end = sinon.stub()
       mockSocket.write = sinon.stub()
@@ -134,11 +131,12 @@ describe('Utils', function () {
         host: 'mockHost',
         createSocket: sinon.stub().returns(mockSocket)
       }
+      Utils.user = mockUser
       mockArgs = { _user: mockUser }
     })
 
-    it('should get the cookie string from the client', function () {
-      utils.createSocket(mockArgs)
+    it('should get the cookie string from the client', () => {
+      Utils.createSocket(mockArgs)
       sinon.assert.calledOnce(mockUser.client.opts.jar.getCookieString)
       sinon.assert.calledWithExactly(
         mockUser.client.opts.jar.getCookieString,
@@ -146,8 +144,8 @@ describe('Utils', function () {
       )
     })
 
-    it('should create a socket with appropriate parameters', function () {
-      utils.createSocket(mockArgs)
+    it('should create a socket with appropriate parameters', () => {
+      Utils.createSocket(mockArgs)
       sinon.assert.calledOnce(mockUser.createSocket)
       sinon.assert.calledWithExactly(
         mockUser.createSocket,
@@ -162,8 +160,8 @@ describe('Utils', function () {
       )
     })
 
-    it('should add a data handler for the socket', function () {
-      utils.createSocket(mockArgs)
+    it('should add a data handler for the socket', () => {
+      Utils.createSocket(mockArgs)
       sinon.assert.calledTwice(mockSocket.on)
       sinon.assert.calledWithExactly(
         mockSocket.on.firstCall,
@@ -172,8 +170,8 @@ describe('Utils', function () {
       )
     })
 
-    it('should add a error handler for the socket', function () {
-      utils.createSocket(mockArgs)
+    it('should add a error handler for the socket', () => {
+      Utils.createSocket(mockArgs)
       sinon.assert.calledTwice(mockSocket.on)
       sinon.assert.calledWithExactly(
         mockSocket.on.secondCall,
@@ -182,41 +180,41 @@ describe('Utils', function () {
       )
     })
 
-    it('should log any error message in data', function () {
+    it('should log any error message in data', () => {
       sinon.stub(console, 'error')
-      var s = utils.createSocket(mockArgs)
+      const s = Utils.createSocket(mockArgs)
       s.emit('data', { error: 'robot' })
       sinon.assert.calledOnce(console.error)
       sinon.assert.calledWithExactly(console.error, 'robot')
       console.error.restore()
     })
 
-    it('should not log any data without error', function () {
+    it('should not log any data without error', () => {
       sinon.stub(console, 'error')
-      var s = utils.createSocket(mockArgs)
+      const s = Utils.createSocket(mockArgs)
       s.emit('data', { log: 'robot' })
       sinon.assert.notCalled(console.error)
       console.error.restore()
     })
 
-    it('should log any error events', function () {
+    it('should log any error events', () => {
       sinon.stub(console, 'error')
-      var s = utils.createSocket(mockArgs)
-      var error = new Error('robot')
+      const s = Utils.createSocket(mockArgs)
+      const error = new Error('robot')
       s.emit('error', error)
       sinon.assert.calledOnce(console.error)
       sinon.assert.calledWithExactly(console.error, error)
       console.error.restore()
     })
 
-    it('should return a the new socket', function () {
-      var s = utils.createSocket(mockArgs)
+    it('should return a the new socket', () => {
+      const s = Utils.createSocket(mockArgs)
       assert.deepEqual(s, mockSocket)
     })
   })
 
-  describe('getRepositoryForCurrentDirectory', function () {
-    beforeEach(function () {
+  describe('getRepositoryForCurrentDirectory', () => {
+    beforeEach(() => {
       sinon.stub(simpleGit.prototype, 'revparse').yieldsAsync(null, 'some-branch\n')
       sinon.stub(simpleGit.prototype, 'getRemotes').yieldsAsync(null, [
         { name: 'origin', refs: { push: 'git@github.com:Runnable/foo.git' } },
@@ -224,68 +222,68 @@ describe('Utils', function () {
       ])
     })
 
-    afterEach(function () {
+    afterEach(() => {
       simpleGit.prototype.revparse.restore()
       simpleGit.prototype.getRemotes.restore()
     })
 
-    describe('errors', function () {
-      it('should reject with any get remotes errors', function () {
-        var error = new Error('robot')
+    describe('errors', () => {
+      it('should reject with any get remotes errors', () => {
+        const error = new Error('robot')
         simpleGit.prototype.getRemotes.yieldsAsync(error)
         return assert.isRejected(
-          utils.getRepositoryForCurrentDirectory(),
+          Utils.getRepositoryForCurrentDirectory(),
           Error,
           /robot/
         )
       })
 
-      it('should reject with any get rev errors', function () {
-        var error = new Error('robot')
+      it('should reject with any get rev errors', () => {
+        const error = new Error('robot')
         simpleGit.prototype.revparse.yieldsAsync(error)
         return assert.isRejected(
-          utils.getRepositoryForCurrentDirectory(),
+          Utils.getRepositoryForCurrentDirectory(),
           Error,
           /robot/
         )
       })
 
-      it('should throw an error if there is not origin remote', function () {
+      it('should throw an error if there is not "origin" remote', () => {
         simpleGit.prototype.getRemotes.yieldsAsync(null, [{
           name: 'not-origin',
           refs: { push: 'git@github.com:Runnable/foo.git' }
         }])
         return assert.isRejected(
-          utils.getRepositoryForCurrentDirectory(),
+          Utils.getRepositoryForCurrentDirectory(),
           Error,
-          /remote.*repo.*origin/
+          /no remote repo.+origin/i
         )
       })
 
-      it('should throw a custom error if there is no git repo when fetching getRemotes', function () {
-        var error = new Error('fatal: Not a git repository - Yup')
+      it('should throw a custom error if there is no git repo when fetching getRemotes', () => {
+        const error = new Error('fatal: Not a git repository - Yup')
         simpleGit.prototype.getRemotes.yieldsAsync(error)
         return assert.isRejected(
-          utils.getRepositoryForCurrentDirectory(),
+          Utils.getRepositoryForCurrentDirectory(),
           Error,
           /Current directory is/
         )
       })
 
-      it('should throw a custom error if there is no git repo when running revparse', function () {
-        var error = new Error('fatal: Not a git repository - Yup')
+      it('should throw a custom error if there is no git repo when running revparse', () => {
+        const error = new Error('fatal: Not a git repository - Yup')
         simpleGit.prototype.revparse.yieldsAsync(error)
         return assert.isRejected(
-          utils.getRepositoryForCurrentDirectory(),
+          Utils.getRepositoryForCurrentDirectory(),
           Error,
           /Current directory is/
         )
       })
     })
 
-    it('should get the local remotes', function () {
-      return assert.isFulfilled(utils.getRepositoryForCurrentDirectory())
-        .then(function () {
+    it('should get the local remotes', () => {
+      return assert.isFulfilled(Utils.getRepositoryForCurrentDirectory())
+        .then(() => {
           sinon.assert.calledOnce(simpleGit.prototype.getRemotes)
           sinon.assert.calledWithExactly(
             simpleGit.prototype.getRemotes,
@@ -295,9 +293,9 @@ describe('Utils', function () {
         })
     })
 
-    it('should get the local branch ref', function () {
-      return assert.isFulfilled(utils.getRepositoryForCurrentDirectory())
-        .then(function () {
+    it('should get the local branch ref', () => {
+      return assert.isFulfilled(Utils.getRepositoryForCurrentDirectory())
+        .then(() => {
           sinon.assert.calledOnce(simpleGit.prototype.revparse)
           sinon.assert.calledWithExactly(
             simpleGit.prototype.revparse,
@@ -307,20 +305,20 @@ describe('Utils', function () {
         })
     })
 
-    it('should resolve with the repository', function () {
-      return assert.isFulfilled(utils.getRepositoryForCurrentDirectory())
-        .then(function (repository) {
+    it('should resolve with the repository', () => {
+      return assert.isFulfilled(Utils.getRepositoryForCurrentDirectory())
+        .then((repository) => {
           assert.equal(repository, 'foo/some-branch')
         })
     })
   })
 
-  describe('fetchInstanceForRepository', function () {
-    var mockArgs
-    var mockUser
-    var mockInstances
-    var mockInstanceOne
-    var mockInstanceTwo = {
+  describe('fetchInstanceForRepository', () => {
+    let mockArgs
+    let mockUser
+    let mockInstances
+    let mockInstanceOne
+    const mockInstanceTwo = {
       contextVersion: {
         appCodeVersions: [{
           defaultBranch: 'master',
@@ -329,7 +327,7 @@ describe('Utils', function () {
       }
     }
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockInstanceOne = {
         contextVersion: {
           appCodeVersions: [{
@@ -343,6 +341,7 @@ describe('Utils', function () {
         fetchInstances: sinon.stub().yieldsAsync(null, mockInstances),
         _org: 'foobar'
       }
+      Utils.user = mockUser
       // fetchInstances will do two things. first it returns instances matching
       // a repo, second it returns instances matching a name.
       mockUser.fetchInstances.onFirstCall().yieldsAsync(null, mockInstances)
@@ -353,9 +352,9 @@ describe('Utils', function () {
       }
     })
 
-    it('should fetch instances for the repository', function () {
-      return assert.isFulfilled(utils.fetchInstanceForRepository(mockArgs))
-        .then(function () {
+    it('should fetch instances for the repository', () => {
+      return assert.isFulfilled(Utils.fetchInstanceForRepository(mockArgs))
+        .then(() => {
           sinon.assert.calledOnce(mockUser.fetchInstances)
           sinon.assert.calledWithExactly(
             mockUser.fetchInstances,
@@ -368,15 +367,14 @@ describe('Utils', function () {
         })
     })
 
-    describe('when a repo was defined that does not exist', function () {
-      beforeEach(function (done) {
+    describe('when a repo was defined that does not exist', () => {
+      beforeEach(() => {
         mockUser.fetchInstances.onFirstCall().yieldsAsync(null, [])
-        done()
       })
 
-      it('should check to see if it a non-repo container', function (done) {
-        return assert.isFulfilled(utils.fetchInstanceForRepository(mockArgs))
-          .then(function () {
+      it('should check to see if it a non-repo container', (done) => {
+        return assert.isFulfilled(Utils.fetchInstanceForRepository(mockArgs))
+          .then(() => {
             sinon.assert.calledTwice(mockUser.fetchInstances)
             sinon.assert.calledWithExactly(
               mockUser.fetchInstances.secondCall,
@@ -390,17 +388,16 @@ describe('Utils', function () {
           })
       })
 
-      describe('when a non-repo container exists that matches', function () {
-        var mockMatchingInstance = { name: 'foo' }
+      describe('when a non-repo container exists that matches', () => {
+        const mockMatchingInstance = { name: 'foo' }
 
-        beforeEach(function (done) {
+        beforeEach(() => {
           mockUser.fetchInstances.onSecondCall().yieldsAsync(null, [ mockMatchingInstance ])
-          done()
         })
 
-        it('should return the non-repo container', function (done) {
-          return assert.isFulfilled(utils.fetchInstanceForRepository(mockArgs))
-            .then(function (instance) {
+        it('should return the non-repo container', (done) => {
+          return assert.isFulfilled(Utils.fetchInstanceForRepository(mockArgs))
+            .then((instance) => {
               assert.equal(instance, mockMatchingInstance)
               done()
             })
@@ -408,39 +405,39 @@ describe('Utils', function () {
       })
     })
 
-    describe('when a branch was defined', function () {
-      it('should not select a branch with no defaultBranch', function () {
+    describe('when a branch was defined', () => {
+      it('should not select a branch with no defaultBranch', () => {
         mockInstanceOne.contextVersion.appCodeVersions[0].defaultBranch = null
-        return assert.isFulfilled(utils.fetchInstanceForRepository(mockArgs))
-          .then(function (instance) {
+        return assert.isFulfilled(Utils.fetchInstanceForRepository(mockArgs))
+          .then((instance) => {
             assert.notOk(instance)
           })
       })
 
-      it('should connect to the instance that matches that branch', function () {
+      it('should connect to the instance that matches that branch', () => {
         mockArgs.repository = 'foo/bar'
-        return assert.isFulfilled(utils.fetchInstanceForRepository(mockArgs))
-          .then(function (instance) {
+        return assert.isFulfilled(Utils.fetchInstanceForRepository(mockArgs))
+          .then((instance) => {
             assert.deepEqual(instance, mockInstanceTwo)
           })
       })
     })
 
-    describe('when a branch was not defined', function () {
-      it('should return the default instance', function () {
-        return assert.isFulfilled(utils.fetchInstanceForRepository(mockArgs))
-          .then(function (instance) {
+    describe('when a branch was not defined', () => {
+      it('should return the default instance', () => {
+        return assert.isFulfilled(Utils.fetchInstanceForRepository(mockArgs))
+          .then((instance) => {
             assert.equal(instance, mockInstanceOne)
           })
       })
     })
   })
 
-  describe('socketReconnectionLogic', function () {
-    var mockSocket
-    var mockStdOut
+  describe('socketReconnectionLogic', () => {
+    let mockSocket
+    let mockStdOut
 
-    beforeEach(function () {
+    beforeEach(() => {
       mockSocket = new EventEmitter()
       mockSocket.end = sinon.stub()
 
@@ -450,18 +447,18 @@ describe('Utils', function () {
       sinon.spy(mockSocket, 'on')
     })
 
-    it('should attach listeners to offline and online, then call initializeStream', function () {
-      var initializeStream = sinon.spy()
-      utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
+    it('should attach listeners to offline and online, then call initializeStream', () => {
+      const initializeStream = sinon.spy()
+      Utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
       sinon.assert.calledTwice(mockSocket.on)
       sinon.assert.calledWith(mockSocket.on, 'online')
       sinon.assert.calledWith(mockSocket.on, 'offline')
       sinon.assert.calledOnce(initializeStream)
     })
 
-    it('should only write lost connection message once until connected', function () {
-      var initializeStream = sinon.spy()
-      utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
+    it('should only write lost connection message once until connected', () => {
+      const initializeStream = sinon.spy()
+      Utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
       mockSocket.emit('offline')
       sinon.assert.calledOnce(mockStdOut.write)
       mockSocket.emit('offline')
@@ -472,9 +469,9 @@ describe('Utils', function () {
       sinon.assert.calledThrice(mockStdOut.write)
     })
 
-    it('should not actually attempt to reconnect unless offline occurred', function () {
-      var initializeStream = sinon.spy()
-      utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
+    it('should not actually attempt to reconnect unless offline occurred', () => {
+      const initializeStream = sinon.spy()
+      Utils.socketReconnectionLogic(mockSocket, mockStdOut, initializeStream)
       sinon.assert.calledOnce(initializeStream)
       mockSocket.emit('online')
       sinon.assert.notCalled(mockStdOut.write)
@@ -487,23 +484,20 @@ describe('Utils', function () {
     })
   })
 
-  describe('handleError', function () {
-    beforeEach(function (done) {
+  describe('handleError', () => {
+    beforeEach(() => {
       sinon.stub(console, 'error')
-      done()
     })
 
-    afterEach(function (done) {
+    afterEach(() => {
       console.error.restore()
-      done()
     })
 
-    it('should log error messages', function (done) {
-      var myError = new Error('Test Error')
-      utils.handleError(myError)
+    it('should log error messages', () => {
+      const myError = new Error('Test Error')
+      Utils.handleError(myError)
       sinon.assert.calledOnce(console.error)
       sinon.assert.calledWithMatch(console.error, /Error/, /Test Error/)
-      done()
     })
   })
 })

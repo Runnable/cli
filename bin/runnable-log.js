@@ -1,11 +1,10 @@
 'use strict'
 
-require('colors')
-var pick = require('101/pick')
-var program = require('commander')
-var utils = require('../lib/utils')
+const pick = require('101/pick')
+const program = require('commander')
 
-var runnable = require('../lib/runnable')
+const Logs = require('../lib/logs')
+const Utils = require('../lib/utils')
 
 program
   .arguments('[repository]')
@@ -20,9 +19,8 @@ if (!program.build && !program.cmd) {
   program.cmd = true
 }
 
-var options = pick(program, [ 'build', 'cmd' ])
-options._user = runnable.user
+const options = pick(program, [ 'build', 'cmd' ])
 options.repository = program.args.shift()
 
-runnable.connectContainerLogs(options)
-  .catch(utils.handleError)
+Logs.connectContainerLogs(options)
+  .catch(Utils.handleError)

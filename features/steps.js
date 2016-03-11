@@ -1,18 +1,18 @@
 'use strict'
 
-var Promise = require('bluebird')
-var assign = require('101/assign')
-var debug = require('debug')('runnable-cli:features:steps')
-var execFile = Promise.promisify(require('child_process').execFile, { multiArgs: true })
-var find = require('101/find')
-var findIndex = require('101/find-index')
-var fs = Promise.promisifyAll(require('fs'))
-var hasProps = require('101/has-properties')
-var isFunction = require('101/is-function')
-var path = require('path')
-var spawn = require('child_process').spawn
+const assign = require('101/assign')
+const debug = require('debug')('runnable-cli:features:steps')
+const find = require('101/find')
+const findIndex = require('101/find-index')
+const hasProps = require('101/has-properties')
+const path = require('path')
+const Promise = require('bluebird')
+const spawn = require('child_process').spawn
 
-var executablePath = path.join(__dirname, '..', 'bin', 'runnable.js')
+const execFile = Promise.promisify(require('child_process').execFile, { multiArgs: true })
+const fs = Promise.promisifyAll(require('fs'))
+
+const executablePath = path.join(__dirname, '..', 'bin', 'runnable.js')
 
 module.exports = function () {
   this.Given(/^the latest version is (the same as|newer than) mine$/, function (direction) {
@@ -23,7 +23,7 @@ module.exports = function () {
   })
 
   this.Given(/^I am using the "([^"]*)" organization$/, function (org) {
-    var settingsFile = path.resolve(this.environment.RUNNABLE_STORE, 'settings.json')
+    const settingsFile = path.resolve(this.environment.RUNNABLE_STORE, 'settings.json')
     return createDirectory(this, '.runnable')
       .bind(this)
       .delay(100)
@@ -47,10 +47,10 @@ module.exports = function () {
   })
 
   function expectOrganization (ctx, expectedOrganization) {
-    var settingsFile = path.resolve(ctx.environment.RUNNABLE_STORE, 'settings.json')
+    const settingsFile = path.resolve(ctx.environment.RUNNABLE_STORE, 'settings.json')
     return fs.readFileAsync(settingsFile)
       .then(function (data) {
-        var settings = JSON.parse(data)
+        const settings = JSON.parse(data)
         if (settings.organization !== expectedOrganization) {
           throw new Error('Expected organization to be:\n' + expectedOrganization + '\n' +
             'Got:\n' + settings.organization + '\n')
@@ -72,7 +72,7 @@ module.exports = function () {
     if (!this.containers) { this.containers = [] }
     table.hashes().forEach(function (c) {
       if (!nonRepo) {
-        var r = c.repo.split('/')
+        const r = c.repo.split('/')
         c.org = r[0]
         c.repo = r[1]
       }
@@ -84,7 +84,7 @@ module.exports = function () {
     if (dir.indexOf('/') === -1) {
       return fs.mkdirAsync(path.join(ctx._fs.cwd, dir))
     } else {
-      var currDir = ctx._fs.cwd
+      let currDir = ctx._fs.cwd
       return Promise.each(
         dir.split('/'),
         function (newDir) {
@@ -106,7 +106,7 @@ module.exports = function () {
     if (!this.fileUploads) {
       throw new Error('there was no files uploaded to the server')
     }
-    var file = find(this.fileUploads, hasProps({ name: name }))
+    const file = find(this.fileUploads, hasProps({ name: name }))
     if (!file) {
       throw new Error('there was no file named "' + name + '" uploaded to the server')
     }
@@ -116,7 +116,7 @@ module.exports = function () {
   })
 
   function createRepository (ctx, dir) {
-    var prevDir = ctx._fs.cwd
+    const prevDir = ctx._fs.cwd
     return createDirectory(ctx, dir)
       .then(function () { return runCommand(ctx, 'git init ' + dir) })
       .then(function () { return moveToDirectory(ctx, dir) })
@@ -133,7 +133,7 @@ module.exports = function () {
   }
 
   function addRemoteOrigin (ctx, repo) {
-    var newUrl = 'git@github:' + repo + '.git'
+    const newUrl = 'git@github:' + repo + '.git'
     return runCommand(ctx, 'git remote add origin ' + newUrl)
   }
 
@@ -152,7 +152,7 @@ module.exports = function () {
   })
 
   this.Given(/^the container named "([^"]*)" has (run|build|terminal) logs:$/, function (containerName, logType, logs) {
-    var containerIndex = findIndex(this.containers, hasProps({ name: containerName }))
+    const containerIndex = findIndex(this.containers, hasProps({ name: containerName }))
     if (containerIndex === -1) {
       throw new Error('steps: container ' + containerName + ' does not exist')
     }
@@ -169,12 +169,12 @@ module.exports = function () {
 
   this.When(/^I run `([^`]*)` interactively$/, function (command) {
     this.lastRun = {}
-    var stdoutArr = []
-    var stderrArr = []
-    var args = command.split(/\s+/)
+    const stdoutArr = []
+    const stderrArr = []
+    const args = command.split(/\s+/)
     command = args.shift()
     if (command === 'runnable') { command = executablePath }
-    var env = assign({}, process.env, this.environment)
+    const env = assign({}, process.env, this.environment)
     this.childProcess = spawn(command, args, { env: env, cwd: this._fs.cwd })
     this.childProcess.stdout.on('data', Array.prototype.push.bind(stdoutArr))
     this.childProcess.stderr.on('data', Array.prototype.push.bind(stderrArr))
@@ -196,7 +196,7 @@ module.exports = function () {
   })
 
   this.When(/^I finished my input$/, function () {
-    var finishPromise = new Promise(function (resolve) {
+    const finishPromise = new Promise(function (resolve) {
       this.childProcess.stdin.on('finish', resolve)
     }.bind(this))
     this.childProcess.stdin.end()
@@ -206,7 +206,7 @@ module.exports = function () {
   this.When(/^I type "([^"]*)"$/, function (input) {
     input = input.trim()
     this.childProcess.stdin.setEncoding = 'utf-8'
-    var flushed = this.childProcess.stdin.write(input + '\r\n')
+    const flushed = this.childProcess.stdin.write(input + '\r\n')
     debug('stdin flushed?', flushed)
     if (flushed) {
       return Promise.resolve().delay(process.env._STEP_DELAY_MS || 2000)
@@ -218,8 +218,8 @@ module.exports = function () {
   })
 
   function runCommand (ctx, command) {
-    var env = assign({}, process.env, ctx.environment)
-    var args = command.split(/\s+/)
+    const env = assign({}, process.env, ctx.environment)
+    const args = command.split(/\s+/)
     command = args.shift()
     debug('running:', command, args)
     debug('in cwd:', ctx._fs.cwd)
@@ -244,7 +244,7 @@ module.exports = function () {
   }
 
   this.When(/^I( successfully)? run `runnable (.+)`$/, function (success, args) {
-    var run = runCommandSaveOutput(this, executablePath + ' ' + args)
+    const run = runCommandSaveOutput(this, executablePath + ' ' + args)
     if (success) {
       return run.bind(this)
         .then(function () { return expectExitCode(this, 0) })
@@ -259,7 +259,7 @@ module.exports = function () {
   })
 
   this.When(/^I send Ctrl\+C$/, function () {
-    var closePromise = new Promise(function (resolve) {
+    const closePromise = new Promise(function (resolve) {
       this.childProcess.on('close', resolve)
     }.bind(this))
     this.childProcess.kill('SIGINT')
@@ -268,12 +268,8 @@ module.exports = function () {
 
   function outputContain (not, expectedOutput) {
     return Promise.try(function () {
-      var actualOutput = this.lastRun.stdout
-      // for node 0.10: if no .indexOf, use .toString first
-      if (!isFunction(actualOutput.indexOf)) {
-        actualOutput = actualOutput.toString()
-      }
-      var actualIndex = actualOutput.indexOf(expectedOutput)
+      const actualOutput = this.lastRun.stdout
+      const actualIndex = actualOutput.indexOf(expectedOutput)
       debug('output expected', expectedOutput)
       debug('output received', actualOutput.toString())
       if (not ? (actualIndex !== -1) : (actualIndex === -1)) {
@@ -287,12 +283,12 @@ module.exports = function () {
   this.Then(/^the output should( not)? contain:$/, outputContain)
 
   function outputMatch (not, expectedRegExp) {
-    var self = this
+    const self = this
     return Promise.try(function () {
-      var actualOutput = self.lastRun.stdout
+      const actualOutput = self.lastRun.stdout
       expectedRegExp = new RegExp(expectedRegExp)
 
-      var matches = expectedRegExp.test(actualOutput)
+      const matches = expectedRegExp.test(actualOutput)
       if (not ? matches : !matches) {
         throw new Error('Expected output to ' + (not ? 'not' : '') + ' match the following:\n' + expectedRegExp + '\n' +
           'Got:\n' + actualOutput + '\n')
@@ -305,7 +301,7 @@ module.exports = function () {
 
   function expectEmptyErrorOutput (ctx) {
     return Promise.try(function () {
-      var actualOutput = ctx.lastRun.stderr
+      const actualOutput = ctx.lastRun.stderr
       if (actualOutput.toString() !== '') {
         throw new Error('Expected error output to be empty.\nGot:\n' + actualOutput + '\n')
       }
@@ -318,8 +314,8 @@ module.exports = function () {
 
   function expectExitCode (ctx, expectedCode) {
     return Promise.try(function () {
-      var actualCode = ctx.lastRun.error ? ctx.lastRun.error.code : 0
-      var okay = actualCode === 0
+      const actualCode = ctx.lastRun.error ? ctx.lastRun.error.code : 0
+      const okay = actualCode === 0
       if (!okay) {
         throw new Error('Expected exit code: ' + expectedCode + '\n' +
           'Got: ' + actualCode + '\n')

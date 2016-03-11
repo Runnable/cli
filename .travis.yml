@@ -1,11 +1,9 @@
 language: node_js
-node_js:
-- '0.10'
-- '4'
+node_js: '4'
 sudo: false
 cache:
   directories:
-  - ./node_modules
+  - './node_modules'
 env:
   global:
   - _STEP_DELAY_MS=1500
@@ -15,5 +13,15 @@ script:
 - npm run lint
 - npm run coverage
 - npm run feature
+after_script:
+- if [[ -e ./coverage/lcov.info ]]; then npm run coveralls; else false; fi
 notifications:
   email: false
+deploy:
+  provider: npm
+  email: bryan@bryankendall.com
+  api_key:
+    secure: fQlrQ7gEOonZTfbMPDj/cN39WEkp7k+fRkmYFishiiFfk6ejGQVKy+JnrAr2X76VdiQ9KfY4m9jcWGodheAT8rhRpxb/wNKBrjDL83ZtHDzwv2NTH2H//En8PyPLrc/DF67+mwpPRJ1rV7zp4wSlYZ/MVdTMd1sbNII4OoqEqydmYhnMFIse00fk1hKUhMnMEYFdFFL0Zzn3EEz+J6/1bxGiWku5kCYktFcNV+mhw0rJyDqFAk17SpJsMkSZLnhh4xbth6lpBZx5GDlejRlXPc+A7VVbIdxqNAwaAQO9mpLdLo1KWlkKF0XRuh00tmsUdjfyapwkzUutM9EyUDA8v1NTeyT6OJir50yJHaHWyxFxp0mn7Nw42aM5XP+ptnc7A5uusAjeYP6hcC2ybAcIhD6kUSKOQa95Ujz5xhWOfaUg41OAy6H9KOzEV4DYcYNw6BeMm8WZ/Fyij/1+ksYykuQ7EePidddtp/S37LBLYdtYwg4mzVXlmgDRQWXxbL8UmrMyi7o5/A8ZYPSmC0ixp6YhwEy2z9cxaL+TA/2venkz/GGcvfxnOrU4lHVluCaQMF/l4NYYOXNvpHBnoxdFm/gaDiFiKpyL8I0kNLP0ez6HBsJLFfoJ5cdmJnifzmRWjzLW10DSa7U6CtZhUGRfd4506xtr94UANeJJwcKR/Zw=
+  on:
+    node: '4'
+    tags: true
