@@ -69,11 +69,11 @@ module.exports = function () {
 
 function handlePrimusConnection (ctx, client) {
   client.on('data', (message) => {
-    var shortHash
-    var container
-    var clientSubstream
+    let shortHash
+    let container
+    let clientSubstream
     if (message.event === 'log-stream') {
-      var containerId = message.data.containerId
+      const containerId = message.data.containerId
       shortHash = containerId.replace('dc:', '')
       container = find(ctx.containers, hasProps({ shortHash: shortHash }))
       if (!container) { throw new Error('primus: could not find container') }
@@ -131,14 +131,14 @@ function makeExpressApp (ctx) {
   })
 
   app.get('/instances', (req, res) => {
-    var instances = ctx.containers.map((container) => {
-      var instanceId = uuid()
-      var contextId = uuid()
-      var contextVersionId = container.shortHash + ':' + uuid()
-      var appCodeVersionId = uuid()
+    let instances = ctx.containers.map((container) => {
+      const instanceId = uuid()
+      const contextId = uuid()
+      const contextVersionId = container.shortHash + ':' + uuid()
+      const appCodeVersionId = uuid()
 
-      var fullRepo = container.org + '/' + container.repo
-      var appCodeVersions = []
+      const fullRepo = container.org + '/' + container.repo
+      const appCodeVersions = []
       if (container.org && container.repo) {
         appCodeVersions.push({
           _id: appCodeVersionId,
@@ -172,14 +172,14 @@ function makeExpressApp (ctx) {
         }
       }
     })
-    var repo = keypather.get(req.query, '["contextVersion.appCodeVersions.repo"].toLowerCase()')
+    const repo = keypather.get(req.query, '["contextVersion.appCodeVersions.repo"].toLowerCase()')
     debug('check this repo out: ' + repo)
     if (repo) {
       instances = instances.filter((i) => {
         return keypather.get(i, 'contextVersion.appCodeVersions[0].lowerRepo') === repo
       })
     }
-    var name = keypather.get(req.query, 'name.toLowerCase()')
+    const name = keypather.get(req.query, 'name.toLowerCase()')
     if (name) {
       instances = instances.filter((i) => {
         return i.lowerName === name
@@ -201,7 +201,7 @@ function makeExpressApp (ctx) {
     require('body-parser').json(),
     (req, res, next) => {
       debug('here is an authorizations request')
-      var user = basicAuth(req)
+      const user = basicAuth(req)
       debug('authorization is as follows', user.name, user.pass)
       if (!user) {
         return res.status(403).end()
@@ -214,7 +214,7 @@ function makeExpressApp (ctx) {
     },
     (req, res, next) => {
       if (ctx.requiredOTP) {
-        var code = req.headers['x-github-otp']
+        const code = req.headers['x-github-otp']
         if (!code) {
           res.set('x-github-otp', 'required')
           debug('request failed. need otp')
@@ -258,11 +258,11 @@ function makeExpressApp (ctx) {
   })
 
   app.get('/npm/@runnable%2fcli', function (req, res) {
-    var infoFile = path.resolve(__dirname, 'npm-info.json')
+    const infoFile = path.resolve(__dirname, 'npm-info.json')
     if (require.cache[infoFile]) {
       delete require.cache[infoFile]
     }
-    var data = require('./npm-info.json')
+    const data = require('./npm-info.json')
     data['dist-tags'].latest = ctx.latestModuleVersion
     data.versions[ctx.latestModuleVersion] = data.versions['0.0.0']
     data.versions[ctx.latestModuleVersion].version = ctx.latestModuleVersion

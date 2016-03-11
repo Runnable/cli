@@ -12,10 +12,10 @@ const Utils = require('../../lib/utils')
 const SSH = require('../../lib/ssh')
 
 describe('SSH Methods', () => {
-  var mockArgs
-  var mockInstance
-  var mockSocket
-  var mockSubstream
+  let mockArgs
+  let mockInstance
+  let mockSocket
+  let mockSubstream
 
   describe('connectTerminalStream', () => {
     beforeEach(() => {
@@ -179,7 +179,7 @@ describe('SSH Methods', () => {
     })
 
     describe('when stdin is not tty', () => {
-      var prevTTY = process.stdin.isTTY
+      const prevTTY = process.stdin.isTTY
       beforeEach(() => {
         process.stdin.isTTY = false
       })
