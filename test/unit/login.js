@@ -46,20 +46,18 @@ describe('Login', () => {
 
     describe('errors', () => {
       it('should reject with any read error', () => {
-        Login._read.onFirstCall().rejects(new Error('robot'))
+        Login._read.onFirstCall().rejects(new Error('awesomesauce'))
         return assert.isRejected(
           Login.login(mockArgs),
-          Error,
-          /robot/
+          /awesomesauce/
         )
       })
 
       it('should reject with any request error', () => {
-        Login._makeRequest.rejects(new Error('robot'))
+        Login._makeRequest.rejects(new Error('sooogoood'))
         return assert.isRejected(
           Login.login(mockArgs),
-          Error,
-          /robot/
+          /sooogoood/
         )
       })
 
@@ -67,17 +65,16 @@ describe('Login', () => {
         mockUser.githubLogin.yieldsAsync(new Error('robot'))
         return assert.isRejected(
           Login.login(mockArgs),
-          Error,
           /robot/
         )
       })
 
-      it('should reject if the token cannot be created', () => {
+      it('should reject with specific github login errors', () => {
         mockRes.statusCode = 400
+        mockBody.message = 'super specific message'
         return assert.isRejected(
           Login.login(mockArgs),
-          Error,
-          /could not generate a token/
+          /super specific message/
         )
       })
 
@@ -85,8 +82,7 @@ describe('Login', () => {
         mockBody.token = null
         return assert.isRejected(
           Login.login(mockArgs),
-          Error,
-          /we did not get a token/
+          /No github token received/
         )
       })
     })
@@ -199,11 +195,10 @@ describe('Login', () => {
 
     describe('errors', () => {
       it('should reject with any error from post', () => {
-        request.post.yieldsAsync(new Error('robot'))
+        request.post.yieldsAsync(new Error('gobot'))
         return assert.isRejected(
           Login._makeRequest(mockCreds),
-          Error,
-          /robot/
+          /gobot/
         )
       })
     })
@@ -327,20 +322,18 @@ describe('Login', () => {
 
     describe('errors', () => {
       it('should reject with any fetch orgs error', () => {
-        mockUser.fetchGithubOrgs.yieldsAsync(new Error('robot'))
+        mockUser.fetchGithubOrgs.yieldsAsync(new Error('slowbot'))
         return assert.isRejected(
           Login.chooseOrg(mockArgs),
-          Error,
-          /robot/
+          /slowbot/
         )
       })
 
       it('should reject with any read prompt error', () => {
-        Login._read.rejects(new Error('robot'))
+        Login._read.rejects(new Error('neato'))
         return assert.isRejected(
           Login.chooseOrg(mockArgs),
-          Error,
-          /robot/
+          /neato/
         )
       })
     })
