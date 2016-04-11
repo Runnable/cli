@@ -10,6 +10,7 @@ program
   .version(require('../package.json').version)
   .usage('[options] <command>')
   .command('check-version', 'Prints current version and checks for updates.')
+  .command('compose', 'Print a .json file to use with Docker Compose.')
   .command('list [repository]', 'Lists all repositories and services. Specify a repository to list its containers.')
   .command('log [repository]', 'View the logs of the container for your local branch.')
   .command('logs [repository]', 'Alias of `log [repository]`', { noHelp: true })
