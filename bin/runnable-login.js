@@ -8,9 +8,14 @@ const Utils = require('../lib/utils')
 
 program
   .description('Authenticate with the Runnable CLI.')
+  .option('-t, --token <token>', 'Provide access token for authentication.')
   .parse(process.argv)
 
-Login.login({})
+let method = Login.login
+if (program.token) {
+  method = Login.loginToken
+}
+method(program)
   .then(() => {
     return Login.chooseOrg({})
       .then((org) => {
