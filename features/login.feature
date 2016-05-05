@@ -45,3 +45,15 @@ Feature: Login into Runnable
     And the exit status should be 0
     And I should be using the "Runnable" organization
     And there should be a token generated for "bkendall"
+
+  Scenario: Login using a token
+    When I run `runnable login -t mytoken` interactively
+    And I type "2"
+    And I finished my input
+    And I wait 1 second
+    Then the output should not contain "GitHub username:"
+    And the output should not contain "GitHub password:"
+    And the output should contain "Choose a GitHub organization"
+    And the output should contain "Selected organization:"
+    And the exit status should be 0
+    And I should be using the "Runnable" organization

@@ -12,6 +12,41 @@ const assert = chai.assert
 const Login = require('../../lib/login')
 
 describe('Login', () => {
+  describe('loginToken', () => {
+    const mockArgs = {}
+    let mockUser
+
+    beforeEach(() => {
+      mockUser = {
+        githubLogin: sinon.stub().yieldsAsync()
+      }
+      mockArgs.token = 'mytoken'
+      Login.user = mockUser
+    })
+
+    describe('errors', () => {
+      it('should reject with a misisng token', () => {
+        delete mockArgs.token
+        return assert.isRejected(
+          Login.loginToken(mockArgs),
+          /token is required/
+        )
+      })
+    })
+
+    it('should login using the token', () => {
+      return assert.isFulfilled(Login.loginToken(mockArgs))
+        .then(() => {
+          sinon.assert.calledOnce(mockUser.githubLogin)
+          sinon.assert.calledWithExactly(
+            mockUser.githubLogin,
+            'mytoken',
+            sinon.match.func
+          )
+        })
+    })
+  })
+
   describe('login', () => {
     const mockArgs = {}
     let mockUser
