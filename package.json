@@ -44,7 +44,7 @@
     "easy-table": "^1.0.0",
     "inflect": "^0.3.0",
     "keypather": "^1.8.1",
-    "npm": "^2.14.20",
+    "npm": "^3.8.9",
     "parse-github-url": "^0.3.0",
     "read": "^1.0.7",
     "request": "^2.69.0",
