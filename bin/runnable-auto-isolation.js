@@ -18,5 +18,5 @@ program
 const options = pick(program, [ 'disable', 'enable' ])
 options.repository = program.args.shift()
 
-AutoIsolation.connectContainerLogs(options)
+AutoIsolation.handleAutoIsolation(options)
   .catch(Utils.handleError)
