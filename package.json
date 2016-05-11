@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "101": "^1.3.1",
-    "@runnable/api-client": "runnable/api-client#auto-isolation",
+    "@runnable/api-client": "^7.1.0",
     "bluebird": "^3.3.1",
     "colors": "^1.0.3",
     "commander": "^2.7.1",
