@@ -1,5 +1,21 @@
 ## Change Log
 
+### v3.2.0 (2016/05/11 19:04 +00:00)
+- [#23](https://github.com/Runnable/cli/pull/23) Auto Isolation (@bkendall)
+- [#22](https://github.com/Runnable/cli/pull/22) Travis Badge: branch -> master (@bkendall)
+- [#20](https://github.com/Runnable/cli/pull/20) Update npm to version 3.8.9 🚀 (@greenkeeperio-bot)
+
+### v3.1.0 (2016/05/05 20:14 +00:00)
+- [#18](https://github.com/Runnable/cli/pull/18) Token Login (@bkendall)
+
+### v3.0.0 (2016/03/11 19:28 +00:00)
+- [#13](https://github.com/Runnable/cli/pull/13) ES6 (@bkendall)
+
+### v2.3.0 (2016/03/10 17:47 +00:00)
+- [#10](https://github.com/Runnable/cli/pull/10) check-version command (@bkendall)
+- [#14](https://github.com/Runnable/cli/pull/14) Add socket reconnection logic (@bkendall, @Nathan219)
+- [#15](https://github.com/Runnable/cli/pull/15) SAN-3697 - Error Handling (@bkendall, @Myztiq)
+
 ### v2.2.0 (2016/03/04 21:38 +00:00)
 - [#11](https://github.com/Runnable/cli/pull/11) upload command (@thejsj)
 - [#12](https://github.com/Runnable/cli/pull/12) Validate Org Input and Accept Names (@bkendall)
