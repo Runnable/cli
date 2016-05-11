@@ -110,6 +110,112 @@ describe('Utils', () => {
     })
   })
 
+  describe('getRepositoryAndMasterPodInstance', () => {
+    let mockArgs
+    const mockInstance = { _id: 'mockInstanceId' }
+
+    beforeEach(() => {
+      mockArgs = {}
+      sinon.stub(Utils, 'getRepositoryForCurrentDirectory')
+        .resolves('mockRepository/branch')
+      sinon.stub(Utils, 'fetchMasterPodInstanceForRepository')
+        .resolves(mockInstance)
+    })
+
+    afterEach(() => {
+      Utils.getRepositoryForCurrentDirectory.restore()
+      Utils.fetchMasterPodInstanceForRepository.restore()
+    })
+
+    describe('with no repository', () => {
+      it('should get the repository from the current directory', () => {
+        return assert
+          .isFulfilled(Utils.getRepositoryAndMasterPodInstance(mockArgs))
+          .then(() => {
+            sinon.assert.calledOnce(Utils.getRepositoryForCurrentDirectory)
+          })
+      })
+
+      it('should fetch the instance for the current directory', () => {
+        return assert
+          .isFulfilled(Utils.getRepositoryAndMasterPodInstance(mockArgs))
+          .then(() => {
+            sinon.assert.calledOnce(Utils.fetchMasterPodInstanceForRepository)
+            sinon.assert.calledWithExactly(
+              Utils.fetchMasterPodInstanceForRepository,
+              { repository: 'mockRepository/branch' }
+            )
+          })
+      })
+
+      it('should throw if it cannot find the instance', () => {
+        Utils.fetchMasterPodInstanceForRepository.resolves()
+        return assert.isRejected(
+          Utils.getRepositoryAndMasterPodInstance(mockArgs),
+          Error,
+          /Could not find Container./
+        )
+      })
+
+      it('should resolve the new args and instance', () => {
+        return assert
+          .isFulfilled(Utils.getRepositoryAndMasterPodInstance(mockArgs))
+          .then((results) => {
+            assert.deepEqual(
+              results,
+              [ { repository: 'mockRepository/branch' }, mockInstance ]
+            )
+          })
+      })
+    })
+
+    describe('with repository', () => {
+      beforeEach(() => {
+        mockArgs.repository = 'mockRepository/other-branch'
+      })
+
+      it('should not get the current repository', () => {
+        return assert
+          .isFulfilled(Utils.getRepositoryAndMasterPodInstance(mockArgs))
+          .then(() => {
+            sinon.assert.notCalled(Utils.getRepositoryForCurrentDirectory)
+          })
+      })
+
+      it('should fetch the instance for the given repository', () => {
+        return assert
+          .isFulfilled(Utils.getRepositoryAndMasterPodInstance(mockArgs))
+          .then(() => {
+            sinon.assert.calledOnce(Utils.fetchMasterPodInstanceForRepository)
+            sinon.assert.calledWithExactly(
+              Utils.fetchMasterPodInstanceForRepository,
+              { repository: 'mockRepository/other-branch' }
+            )
+          })
+      })
+
+      it('should throw if it cannot find the instance', () => {
+        Utils.fetchMasterPodInstanceForRepository.resolves()
+        return assert.isRejected(
+          Utils.getRepositoryAndMasterPodInstance(mockArgs),
+          Error,
+          /Could not find Container./
+        )
+      })
+
+      it('should resolve the new args and instance', () => {
+        return assert
+          .isFulfilled(Utils.getRepositoryAndMasterPodInstance(mockArgs))
+          .then((results) => {
+            assert.deepEqual(
+              results,
+              [ { repository: 'mockRepository/other-branch' }, mockInstance ]
+            )
+          })
+      })
+    })
+  })
+
   describe('createSocket', () => {
     let mockArgs
     let mockUser
@@ -309,6 +415,82 @@ describe('Utils', () => {
       return assert.isFulfilled(Utils.getRepositoryForCurrentDirectory())
         .then((repository) => {
           assert.equal(repository, 'foo/some-branch')
+        })
+    })
+  })
+
+  describe('fetchMasterPodInstanceForRepository', () => {
+    let mockArgs
+    let mockUser
+    let mockInstances
+    let mockInstanceOne
+    const mockInstanceTwo = {
+      contextVersion: {
+        appCodeVersions: [{
+          defaultBranch: 'master',
+          lowerBranch: 'bar'
+        }]
+      }
+    }
+
+    beforeEach(() => {
+      mockInstanceOne = {
+        contextVersion: {
+          appCodeVersions: [{
+            defaultBranch: 'master',
+            lowerBranch: 'master'
+          }]
+        }
+      }
+      mockInstances = [ mockInstanceOne, mockInstanceTwo ]
+      mockUser = {
+        fetchInstances: sinon.stub().yieldsAsync(null, mockInstances),
+        _org: 'foobar'
+      }
+      Utils.user = mockUser
+      // fetchInstances will do two things. first it returns instances matching
+      // a repo, second it returns instances matching a name.
+      mockUser.fetchInstances.onFirstCall().yieldsAsync(null, mockInstances)
+      mockUser.fetchInstances.onSecondCall().yieldsAsync(null, [])
+      mockArgs = {
+        _user: mockUser,
+        repository: 'foo'
+      }
+    })
+
+    describe('when a branch was defined', () => {
+      it('should still return the default branch', () => {
+        mockArgs.repository = 'foo/bar'
+        return assert
+          .isFulfilled(Utils.fetchMasterPodInstanceForRepository(mockArgs))
+          .then((instance) => {
+            assert.deepEqual(instance, mockInstanceOne)
+          })
+      })
+    })
+
+    it('should fetch instances for the repository', () => {
+      return assert
+        .isFulfilled(Utils.fetchMasterPodInstanceForRepository(mockArgs))
+        .then(() => {
+          sinon.assert.calledOnce(mockUser.fetchInstances)
+          sinon.assert.calledWithExactly(
+            mockUser.fetchInstances,
+            {
+              githubUsername: 'foobar',
+              'contextVersion.appCodeVersions.repo': 'foobar/foo',
+              masterPod: true
+            },
+            sinon.match.func
+          )
+        })
+    })
+
+    it('should return the masterpod instance', () => {
+      return assert
+        .isFulfilled(Utils.fetchMasterPodInstanceForRepository(mockArgs))
+        .then((instance) => {
+          assert.equal(instance, mockInstanceOne)
         })
     })
   })

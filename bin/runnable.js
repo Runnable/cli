@@ -9,6 +9,7 @@ const Runnable = require('../lib/runnable')
 program
   .version(require('../package.json').version)
   .usage('[options] <command>')
+  .command('auto-isolation [repository]', 'Deal with Auto Isolation')
   .command('check-version', 'Prints current version and checks for updates.')
   .command('list [repository]', 'Lists all repositories and services. Specify a repository to list its containers.')
   .command('log [repository]', 'View the logs of the container for your local branch.')
