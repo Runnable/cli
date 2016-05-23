@@ -67,7 +67,7 @@
     "express": "^4.13.4",
     "github-changes": "^1.0.2",
     "istanbul": "^0.4.2",
-    "mocha": "^2.4.5",
+    "mocha": "^2.5.1",
     "primus": "^4.0.5",
     "sinon": "^1.17.3",
     "sinon-as-promised": "^4.0.0",
