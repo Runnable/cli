@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "basic-auth": "^1.0.3",
-    "body-parser": "^1.15.0",
+    "body-parser": "^1.15.2",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
     "coveralls": "^2.11.8",
