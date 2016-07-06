@@ -70,7 +70,7 @@
     "mocha": "^2.5.1",
     "primus": "^4.0.5",
     "sinon": "^1.17.3",
-    "sinon-as-promised": "^4.0.0",
+    "sinon-as-promised": "^4.0.2",
     "standard": "^7.1.0",
     "standard-format": "^2.1.0"
   }
