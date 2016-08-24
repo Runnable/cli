@@ -68,7 +68,7 @@
     "github-changes": "^1.0.2",
     "istanbul": "^0.4.4",
     "mocha": "^2.5.1",
-    "primus": "^4.0.5",
+    "primus": "^6.0.2",
     "sinon": "^1.17.3",
     "sinon-as-promised": "^4.0.0",
     "standard": "^7.1.0",
