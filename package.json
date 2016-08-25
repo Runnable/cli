@@ -43,7 +43,7 @@
     "docker-stream-cleanser": "^0.3.0",
     "easy-table": "^1.0.0",
     "inflect": "^0.3.0",
-    "keypather": "^1.8.1",
+    "keypather": "^2.0.1",
     "npm": "^3.8.9",
     "parse-github-url": "^0.3.0",
     "promise-while": "^1.0.1",
