@@ -61,7 +61,7 @@
     "body-parser": "^1.15.2",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
-    "coveralls": "^2.11.8",
+    "coveralls": "^2.11.13",
     "cucumber": "^1.0.0",
     "docker-frame": "^1.0.0",
     "express": "^4.13.4",
