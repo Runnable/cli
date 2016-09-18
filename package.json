@@ -50,7 +50,7 @@
     "read": "^1.0.7",
     "request": "^2.69.0",
     "semver": "^5.1.0",
-    "simple-git": "^1.38.0",
+    "simple-git": "^1.50.0",
     "substream": "^0.2.0",
     "tough-cookie-filestore": "0.0.1",
     "uuid": "^2.0.1",
