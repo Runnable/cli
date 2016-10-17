@@ -4,6 +4,7 @@ Feature: SSH to Container
       | name | repo | branch | status | shortHash |
       | foo | Runnable/foo | master | Running | dead |
       | bar-foo | Runnable/foo | bar | Running | beef |
+      | bar-run-qux-foo | Runnable/foo | bar-run/qux | Running | face |
     And the non-repository containers:
       | name | status | shortHash |
       | redis | Running | 4ed15 |
@@ -46,6 +47,25 @@ Feature: SSH to Container
       """
       red leather
       yellow leather
+      """
+    And the exit status should be 0
+
+  Scenario: SSH to the container for the current branch which has a forward slash in its name
+    Given I am in the "Runnable/foo" git repository
+    And I am on branch "bar-run/qux"
+    And the container named "bar-run-qux-foo" has terminal logs:
+      """
+      slashy mcallister
+      something favorite
+      """
+    When I run `runnable ssh` interactively
+    And I wait 1 second
+    And I type "echo hi"
+    And I finished my input
+    Then the output should contain:
+      """
+      slashy mcallister
+      something favorite
       """
     And the exit status should be 0
 
