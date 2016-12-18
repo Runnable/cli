@@ -39,7 +39,7 @@
     "bluebird": "^3.4.1",
     "colors": "^1.0.3",
     "commander": "^2.7.1",
-    "debug": "^2.1.1",
+    "debug": "^2.4.5",
     "docker-stream-cleanser": "^0.3.0",
     "easy-table": "^1.0.0",
     "inflect": "^0.3.0",
