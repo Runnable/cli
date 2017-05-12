@@ -62,7 +62,7 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
     "coveralls": "^2.11.8",
-    "cucumber": "^1.0.0",
+    "cucumber": "^2.1.0",
     "docker-frame": "^1.0.0",
     "express": "^4.13.4",
     "github-changes": "^1.0.2",
