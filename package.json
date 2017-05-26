@@ -59,7 +59,7 @@
   "devDependencies": {
     "basic-auth": "^1.0.3",
     "body-parser": "^1.15.2",
-    "chai": "^3.5.0",
+    "chai": "^4.0.0",
     "chai-as-promised": "^5.2.0",
     "coveralls": "^2.11.8",
     "cucumber": "^1.0.0",
